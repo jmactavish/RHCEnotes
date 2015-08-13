@@ -1,0 +1,48 @@
+yum install httpd mysql mysql-server mysql-devel php php-mysql zlib freetype libjpeg fontconfig gd libxml2 php-gd rrdtool net-snmp net-snmp-utils 
+yum install gcc*
+mkdir /var/www/html
+tar -xzf /var/www/html/cacti.tar.gz
+cd /var/www/html/cacti
+vim include/config.php
+$database_type = "mysql";
+$database_default = "cacti";
+$database_hostname = "localhost";
+$database_username = "cactiuser";
+$database_password = "Pass@123";
+$database_port = "3306";
+:wq
+
+useradd cactiuser
+groupadd cacti
+chown -R cactiuser:cacti /var/www/html/cacti
+
+#'mysql'
+mysql_secure_installation
+mysql -u root -p
+create database cacti;
+show databases;
+use cacti;
+grant all privileges on cacti.* to cactiuser@loaclhost identified by "Pass@123";
+flush privileges;
+exit
+mysql -u cactiuser -p Pass@123 cacti < /var/www/html/cacti/cacti.sql
+service httpd restart
+
+#'install cacti via an internet browser by visit 192.168.122.102/cacti/install'
+#'logon : admin admin'
+#'add a device 192.168.122.201'
+php /var/www/html/cacti/poller.php
+crontab -u cactiuser -e
+*/5 * * * * /usr/bin/php /var/www/html/cacti/poller.php
+:wq
+
+#'these need to be done on clients:'
+yum install net-snmp net-snmp-utils
+vim /etc/snmp/snmpd.conf
+#'line 41 #change a community name'
+#'line 62 #enable "read" to "all"'
+#'line 85 #enable this line by deleting #'
+:wq
+
+#'add this client from webui'
+#'create graphs for this client'
