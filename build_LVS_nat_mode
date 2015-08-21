@@ -1,0 +1,19 @@
+#'load_blancer:10.154.1.88/192.168.122.111, http_servers:192.168.122.211-212'
+
+#'on load_blancer:'
+modprobe ip_vs
+rpm -ivh ipvsadm-1.25.9.rpm
+vim /etc/sysctl.conf
+net.ipv4.ip_forward = 1
+:wq
+sysctl -p
+iptables -t nat -A POSTROUTING -s 192.168.122.0/24 -o eth0 -j SNAT --to-source 10.154.1.88
+service ipvsadm stop
+ipvsadm -A -t 10.154.1.88:80 -s rr #'add a load_blancer'
+ipvsadm -a -t 10.154.1.88:80 -r 192.168.122.211:80 -m #'add a http server'
+ipvsadm -a -t 10.154.1.88:80 -r 192.168.122.212:80 -m
+ipvadm -L -n
+service ipvsadm save
+chkconfig ipvsadm on
+
+
