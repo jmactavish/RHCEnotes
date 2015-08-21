@@ -1,5 +1,6 @@
 #'on the server:'
-yum groupinstall 'X Window System' 'Gnome Desktop' Desktop tigervnc-server
+yum groupinstall 'X Window System' 'Gnome Desktop' Desktop
+yum install tigervnc-server
 echo 'id:5:initdefault:' > /etc/inittab
 chkconfig vncserver on
 vncserver [:1] #'set a password for current user, now it's root in fact'
