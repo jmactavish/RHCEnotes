@@ -8,7 +8,8 @@ echo 'VNCSERVERS="1:root"' >> /etc/sysconfig/vncservers
 init 6
 
 #'manage clients as following:'
-yum groupinstall 'X Window System' 'Gnome Desktop' Desktop tigervnc
+yum groupinstall 'X Window System' 'Gnome Desktop' Desktop
+yum install tigervnc
 echo 'id:5:initdefault:' > /etc/inittab
 init 5
 #'just start vnc from GUI menu after installation'
