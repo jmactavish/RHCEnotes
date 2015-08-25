@@ -1,0 +1,73 @@
+su
+apt-get update
+apt-get upgrade
+apt-get update && apt-get install build-essential libelf-dev uuid-dev libpcap-dev python3-pyqt4 python3-netifaces git cmake bison flex
+wget -O get-pip.py https://raw.github.com/pypa/pip/master/contrib/get-pip.py
+python3 get-pip.py
+pip3 install pyzmq && pip3 install tornado
+dpkg --add-architecture i386 && apt-get update && apt-get install libc6:i386 libstdc++6:i386 libssl1.0.0:i386
+ln -s /lib/i386-linux-gnu/libcrypto.so.1.0.0 /lib/i386-linux-gnu/libcrypto.so.4
+wget http://ndevilla.free.fr/iniparser/iniparser-3.1.tar.gz
+tar -xf iniparser-3.1.tar.gz
+cd iniparser
+make
+cp libiniparser* /usr/lib
+cp src/*.h /usr/include
+
+#'download from GNS site'
+unzip dynamips-0.2.14.zip
+cd dynamips-0.2.14.zip
+mkdir build
+cd build
+cmake ..
+dynamips -H 7200 #'have a test'
+apt-get install python3-setuptools
+apt-get install python3-zmq
+apt-get install python3-netifaces
+unzip gns3-server-1.2.zip
+cd gns3-server-1.2
+python3 setup.py install
+cd ..
+apt-get install python3-setuptools
+apt-get install python3-pyqt4
+unzip gns3-gui-1.2.zip
+cd gns3-gui-1.2
+python3 setup.py install
+cd ..
+
+unzip iouyap-0.95.zip
+cd iouyap-0.95
+make install
+cp iouyap /usr/local/bin/iouyap
+cd ..
+nano CiscoKeyGen
+#!/usr/bin/python
+import os
+import socket
+import hashlib
+import struct
+hostid=os.popen("hostid").read().strip()
+hostname = socket.gethostname()
+ioukey=int(hostid,16)
+for x in hostname:
+ioukey = ioukey + ord(x)
+print "hostid=" + hostid +", hostname="+ hostname +", ioukey=" + hex(ioukey)[2:]
+iouPad1='\x48\x58\x21\x81\x56\x7B\x0D\xF3\x21\x43\x9B\x7E\xAC\x1D\xE6\x8A\'
+iouPad2='\x80' + 39*'\0'
+md5input=iouPad1 + iouPad2 + struct.pack('|i' , ioukey) + iouPad1
+ioulicense=hashlib.md5(md5input).hexdigest()[:16]
+print "\nAdd the following text to -/.iourc:"
+print "[license]\n" + hostname + " = " + ioulicense + ";\n"
+print "echo '127.0.0.127 xml.cisco.com' >> /etc/hosts #'run this line if phone home feature is prefered to be disabled'\n"
+#'save and quit nano'
+chmod + x CiscoKeyGen
+./CiscoKeyGen
+nano ~/iourc.txt
+#'paste the output of CiscoKeyGen into iourc.txt'
+echo '127.0.0.127 xml.cisco.com' >> /etc/hosts
+apt-get install --no-install-recommends gnome-panel
+apt-get install gksu
+gnome-desktop-item-edit /usr/share/applications/ --create-new
+#'add IOS on UNIX now'
+#'step 1: add iourc'
+#'step 2: add images'
