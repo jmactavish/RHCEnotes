@@ -35,7 +35,7 @@ cd /usr/src/keepalived
 make && make install
 chkconfig --add keepalived
 chkconfig keepalived on
-#'configure keepalived.conf on 111 and 112, of course, differ their names and ids'
+#'configure keepalived.conf on 111 and 112, of course, differ their ids'
 #'on 111:'
 vi /etc/keepalived/keepalived.conf
 global_defs{
