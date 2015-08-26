@@ -3,7 +3,7 @@
 
 #'on load_blancers:'
 service NetworkManager stop
-vim ifcfg-eth0:0 #'add a virtual group ip address'
+vim /etc/sysconfig/network-script/ifcfg-eth0:0 #'add a virtual group ip address'
 DEVICE="eth0:0"
 ONBOOT="yes"
 BOOTPROTO=static
@@ -22,8 +22,8 @@ modprobe ip_vs
 rpm -ivh ipvsadm-1.25.9.rpm #'install this package from DVD'
 service ipvsadm stop
 ipvsadm -A -t 192.168.122.110:80 -s rr #'add a load_blancer'
-ipvsadm -A -t 192.168.122.110:80 -r 192.168.0.211 -g
-ipvsadm -A -t 192.168.122.110:80 -r 192.168.0.212 -g
+ipvsadm -a -t 192.168.122.110:80 -r 192.168.0.211 -g
+ipvsadm -a -t 192.168.122.110:80 -r 192.168.0.212 -g
 ipvadm -L -n
 service ipvsadm save
 chkconfig ipvsadm on
