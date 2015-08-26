@@ -1,13 +1,17 @@
-#'load_blancer:192.168.122.111/110(virtual), http_servers:192.168.122.211-212, '
+#'load_blancers:192.168.122.111-112/24, http_servers:192.168.122.211-212/24, virtual cluster address is 192.168.122.110'
 #'visit the http group via the virtual address'
 
-#'on load_blancer:'
+#'on load_blancers:'
 service NetworkManager stop
 vim ifcfg-eth0:0 #'add a virtual group ip address'
+DEVICE="eth0:0"
+ONBOOT="yes"
+BOOTPROTO=static
 IPADDR=192.168.122.110
+NETMASK=255.255.255.0
 :wq
-modprobe ip_vs
-rpm -ivh ipvsadm-1.25.9.rpm
+ifdown eth0
+ifup eth0
 vim /etc/sysctl.conf #'add 3 lines manually'
 net.ipv4.conf.all.send_redirects=0
 net.ipv4.conf.default.send_redirects=0
@@ -15,6 +19,8 @@ net.ipv4.conf.eth0.send_redirects=0
 :wq
 sysctl -p
 iptables -t nat -A POSTROUTING -s 192.168.122.0/24 -o eth0 -j SNAT --to-source 10.154.1.88
+modprobe ip_vs
+rpm -ivh ipvsadm-1.25.9.rpm #'install this package from DVD'
 service ipvsadm stop
 ipvsadm -A -t 192.168.122.110:80 -s rr #'add a load_blancer'
 ipvsadm -A -t 192.168.122.110:80 -r 192.168.0.211 -g
@@ -22,12 +28,71 @@ ipvsadm -A -t 192.168.122.110:80 -r 192.168.0.212 -g
 ipvadm -L -n
 service ipvsadm save
 chkconfig ipvsadm on
+yum install gcc* kernel-devel openssl-devel popt-devel
+tar -xzvf keepalived.tar.gz /usr/src
+cd /usr/src/keepalived
+./configure --prefix=/ --with-kernel-dir=/usr/src/kernels/2.6.32-131.0.15.el6.i686
+make && make install
+chkconfig --add keepalived
+chkconfig keepalived on
+#'configure keepalived.conf on 111 and 112, of course, differ their names and ids'
+#'on 111:'
+vi /etc/keepalived/keepalived.conf
+global_defs{
+router_id 111
+}
+vrrp_instance VI_1 {
+state MASTER
+interface eth0
+virtual_router_id 1 #'remember to set a same virtual router id on other load blancers in this cluster'
+priority 100
+advert_int 1
+authentication{
+auth_type PASS
+auth_pass passw0rd
+}
+virtual_ipaddress{
+192.168.122.110
+}
+}
+virtual_server 192.168.112.110 80 {
+delay_loop 15
+lb_algo rr
+lb_kind DR
+net_mask 255.255.255.0
+persistence_timeout 60
+protocol TCP
+real_server 192.156.122.211 80{
+weight 1
+TCP_CHECK {
+connect_port 80
+connect_timeout 3
+nb_get_retry 3
+delay_before_retry 3
+}
+}
+real_server 192.156.122.212 80{
+TCP_CHECK {
+connect_port 80
+connect_timeout 3
+nb_get_retry 3
+delay_before_retry 3
+}
+}
+}
+:wq
+service keepalived start
+#'do the same thing on 112'
 
 #'configure http servers:'
-vim ifcfg-lo:0
-ipaddr=192.168.122.110
-netmask=255.255.255.255
+vim ifcfg-lo:0 #'change 3 substances'
+DEVICE=lo:0
+IPADDR=192.168.122.110
+NETMASK=255.255.255.255
 :wq
+service NetworkManager stop
+ifdown lo
+ifup lo
 vim /etc/sysctl.conf
 net.ipv4.conf.all.arp_ignore = 1
 net.ipv4.conf.all.arp_announce = 2
@@ -37,5 +102,7 @@ net.ipv4.conf.lo.arp_ignore = 1
 net.ipv4.conf.lo.arp_announce = 2
 :wq
 sysctl -p
-service NetworkManager stop
-route add -host 192.168.1.110 dev lo:0
+vi /etc/rc.local
+/sbin/route add -host 192.168.122.110 dev lo:0
+:wq
+route add -host 192.168.122.110 dev lo:0
