@@ -24,12 +24,12 @@ service ipvsadm stop
 ipvsadm -A -t 192.168.122.110:80 -s rr #'add a load_blancer'
 ipvsadm -a -t 192.168.122.110:80 -r 192.168.0.211 -g
 ipvsadm -a -t 192.168.122.110:80 -r 192.168.0.212 -g
-ipvadm -L -n
+ipvsadm -L -n
 service ipvsadm save
 chkconfig ipvsadm on
 yum install gcc* kernel-devel openssl-devel popt-devel
-tar -xzvf keepalived.tar.gz /usr/src
-cd /usr/src/keepalived
+tar -xzvf keepalived.tar.gz
+cd keepalived
 ./configure --prefix=/ --with-kernel-dir=/usr/src/kernels/2.6.32-131.0.15.el6.i686
 make && make install
 chkconfig --add keepalived
@@ -41,10 +41,10 @@ global_defs{
 router_id 111
 }
 vrrp_instance VI_1 {
-state MASTER
+state MASTER #'mark 112 as a "slave" or "backup"'
 interface eth0
 virtual_router_id 1 #'remember to set a same virtual router id on other load blancers in this cluster'
-priority 100
+priority 100 #'smaller priority on slaves'
 advert_int 1
 authentication{
 auth_type PASS
@@ -71,6 +71,7 @@ delay_before_retry 3
 }
 }
 real_server 192.156.122.212 80{
+weight 1
 TCP_CHECK {
 connect_port 80
 connect_timeout 3
