@@ -18,7 +18,6 @@ net.ipv4.conf.default.send_redirects=0
 net.ipv4.conf.eth0.send_redirects=0
 :wq
 sysctl -p
-iptables -t nat -A POSTROUTING -s 192.168.122.0/24 -o eth0 -j SNAT --to-source 10.154.1.88
 modprobe ip_vs
 rpm -ivh ipvsadm-1.25.9.rpm #'install this package from DVD'
 service ipvsadm stop
