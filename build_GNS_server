@@ -14,10 +14,15 @@ sudo python3 setup.py install
 git clone git://github.com/GNS3/gns3-gui.git
 cd gns3-gui.git/
 sudo python3 setup.py install
-gns3
+#'run gns3 to check'
 sudo dpkg –add-architecture i386
 sudo apt-get install libc6:i386 libstdc++6:i386 libssl1.0.0:i386
 sudo ln -s /lib/i386-linux-gnu/libcrypto.so.1.0.0 /lib/i386-linux-gnu/libcrypto.so.4
+#'download something from GNS site'
+unzip iouyap-0.95.zip
+cd iouyap-0.95
+make install
+cp iouyap /usr/local/bin/iouyap
 cd ~/GNS3/
 vi CiscoKeyGen
 #!/usr/bin/python
@@ -41,4 +46,7 @@ print "[license]\n" + hostname + " = " + ioulicense + ";\n"
 :wq
 chmod + x CiscoKeyGen
 ./CiscoKeyGen
+#'input iourc.txt path'
+#'input iouyap path'
+#'import iou images'
 
