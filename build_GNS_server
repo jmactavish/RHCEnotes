@@ -1,48 +1,25 @@
-su
-apt-get update
-apt-get upgrade
-apt-get update && apt-get install build-essential libelf-dev uuid-dev libpcap-dev python3-pyqt4 python3-netifaces git cmake bison flex
+sudo apt-get update
+sudo apt-get install build-essential libelf-dev uuid-dev libpcap-dev python3-dev python3-pyqt4 git cmake bison flex python3-tornado python3-zmq python3-netifaces
 wget -O get-pip.py https://raw.github.com/pypa/pip/master/contrib/get-pip.py
-python3 get-pip.py
-pip3 install pyzmq && pip3 install tornado
-dpkg --add-architecture i386 && apt-get update && apt-get install libc6:i386 libstdc++6:i386 libssl1.0.0:i386
-ln -s /lib/i386-linux-gnu/libcrypto.so.1.0.0 /lib/i386-linux-gnu/libcrypto.so.4
-wget http://ndevilla.free.fr/iniparser/iniparser-3.1.tar.gz
-tar -xf iniparser-3.1.tar.gz
-cd iniparser
-make
-cp libiniparser* /usr/lib
-cp src/*.h /usr/include
-
-#'download from GNS site'
-unzip dynamips-0.2.14.zip
-cd dynamips-0.2.14.zip
+git clone git://github.com/GNS3/dynamips.git
+cd dynamips
 mkdir build
 cd build
 cmake ..
-make install
-dynamips -H 7200 #'have a test'
-apt-get install python3-setuptools
-apt-get install python3-zmq
-apt-get install python3-netifaces
-apt-get install python-libcloud
-unzip gns3-server-1.2.zip
-cd gns3-server-1.2
-python3 setup.py install
-cd ..
-apt-get install python3-setuptools
-apt-get install python3-pyqt4
-unzip gns3-gui-1.2.zip
-cd gns3-gui-1.2
-python3 setup.py install
-cd ..
-
-unzip iouyap-0.95.zip
-cd iouyap-0.95
-make install
-cp iouyap /usr/local/bin/iouyap
-cd ..
-nano CiscoKeyGen
+make && sudo make install
+dynamips -H 7200
+git clone git://github.com/GNS3/gns3-server.git
+cd gns3-server/
+sudo python3 setup.py install
+git clone git://github.com/GNS3/gns3-gui.git
+cd gns3-gui.git/
+sudo python3 setup.py install
+gns3
+sudo dpkg –add-architecture i386
+sudo apt-get install libc6:i386 libstdc++6:i386 libssl1.0.0:i386
+sudo ln -s /lib/i386-linux-gnu/libcrypto.so.1.0.0 /lib/i386-linux-gnu/libcrypto.so.4
+cd ~/GNS3/
+vi CiscoKeyGen
 #!/usr/bin/python
 import os
 import socket
@@ -61,19 +38,7 @@ md5input=iouPad1 + iouPad2 + struct.pack('!i' , ioukey) + iouPad1
 ioulicense=hashlib.md5(md5input).hexdigest()[:16]
 print "\nAdd the following text to -/.iourc:"
 print "[license]\n" + hostname + " = " + ioulicense + ";\n"
-#'save and quit nano'
+:wq
 chmod + x CiscoKeyGen
 ./CiscoKeyGen
-nano ~/iourc.txt
-#'paste the output of CiscoKeyGen into iourc.txt'
-echo '127.0.0.127 xml.cisco.com' >> /etc/hosts
-apt-get install --no-install-recommends gnome-panel
-apt-get install gksu
-gnome-desktop-item-edit /usr/share/applications/ --create-new
-#'type:app'
-#'name:gns3'
-#'command:gksu gns3'
-#'comment:launch GNS3 app'
-#'add IOS on UNIX now'
-#'step 1: add iourc'
-#'step 2: add images'
+
