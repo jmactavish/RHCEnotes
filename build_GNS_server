@@ -46,7 +46,16 @@ print "[license]\n" + hostname + " = " + ioulicense + ";\n"
 :wq
 chmod + x CiscoKeyGen
 ./CiscoKeyGen
+nano ~/iourc.txt
+#'paste the output of CiscoKeyGen into iourc.txt'
 #'input iourc.txt path'
 #'input iouyap path'
 #'import iou images'
-
+echo '127.0.0.127 xml.cisco.com' >> /etc/hosts
+apt-get install --no-install-recommends gnome-panel
+apt-get install gksu
+gnome-desktop-item-edit /usr/share/applications/ --create-new
+#'type:app'
+#'name:gns3'
+#'command:gksu gns3'
+#'comment:launch GNS3 app'
