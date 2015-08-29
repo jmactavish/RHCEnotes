@@ -18,11 +18,16 @@ sudo python3 setup.py install
 sudo dpkg –add-architecture i386
 sudo apt-get install libc6:i386 libstdc++6:i386 libssl1.0.0:i386
 sudo ln -s /lib/i386-linux-gnu/libcrypto.so.1.0.0 /lib/i386-linux-gnu/libcrypto.so.4
+git clone http://github.com/ndevilla/iniparser.git
+cd iniparser
+make
+sudo cp libiniparser* /usr/lib/
+sudo cp src/*.h /usr/include/
 #'download something from GNS site'
 unzip iouyap-0.95.zip
 cd iouyap-0.95
-make install
-cp iouyap /usr/local/bin/iouyap
+sudo make install
+sudo cp iouyap /usr/local/bin/iouyap
 cd ~/GNS3/
 vi CiscoKeyGen
 #!/usr/bin/python
@@ -53,9 +58,9 @@ nano ~/iourc.txt
 #'input iouyap path'
 #'import iou images'
 echo '127.0.0.127 xml.cisco.com' >> /etc/hosts
-apt-get install --no-install-recommends gnome-panel
-apt-get install gksu
-gnome-desktop-item-edit /usr/share/applications/ --create-new
+sudo apt-get install --no-install-recommends gnome-panel
+sudo apt-get install gksu
+sudo gnome-desktop-item-edit /usr/share/applications/ --create-new
 #'type:app'
 #'name:gns3'
 #'command:gksu gns3'
