@@ -1,21 +1,22 @@
 sudo apt-get update
 sudo apt-get install build-essential libelf-dev uuid-dev libpcap-dev python3-dev python3-pyqt4 git cmake bison flex python3-tornado python3-zmq python3-netifaces
 wget -O get-pip.py https://raw.github.com/pypa/pip/master/contrib/get-pip.py
+python3 get-pip.py
 git clone git://github.com/GNS3/dynamips.git
 cd dynamips
 mkdir build
 cd build
 cmake ..
-make && sudo make install
+sudo make install
 dynamips -H 7200
 git clone git://github.com/GNS3/gns3-server.git
 cd gns3-server/
 sudo python3 setup.py install
 git clone git://github.com/GNS3/gns3-gui.git
-cd gns3-gui.git/
+cd gns3-gui/
 sudo python3 setup.py install
 #'run gns3 to check'
-sudo dpkg –add-architecture i386
+sudo dpkg --add-architecture i386
 sudo apt-get install libc6:i386 libstdc++6:i386 libssl1.0.0:i386
 sudo ln -s /lib/i386-linux-gnu/libcrypto.so.1.0.0 /lib/i386-linux-gnu/libcrypto.so.4
 git clone http://github.com/ndevilla/iniparser.git
