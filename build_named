@@ -2,33 +2,29 @@ yum install bind
 chkconfig named on
 
 vi /etc/named.conf
-#modify these 2 lines:
-listen-on port 53 { any; };
-allow-query     { 192.168.122.0/24; };
-:wq
-
-vi /etc/named.rfc1912.zones
-zone "haha.com" IN {
-	type master;
-	file "haha.zone";
-	allow-update { none; };
+options {
+	directory "/var/named";
 };
-zone "hengheng.com" IN {
+zone "." IN {
+	type hint;
+	file "name.ca";
+};
+zone "localhost" IN {
 	type master;
-	file "hengheng.zone";
-	allow-update { none; };
+	file "localhost.zone";
+};
+zone "0.0.127-addr.arpa" IN {
+	tpye master;
+	file "name.local";
 };
 :wq
+vi /etc/named/localhost.zone
+$TTL 600
 
-vi /var/named/haha.zone
-$TTL 1D
-@	IN SOA	haha.com. rname.invalid. (
-					0	; serial
-					1D	; refresh
-					1H	; retry
-					1W	; expire
-					3H )	; minimum
-	NS	dns
-dns	A	192.168.122.111
-www	A	192.168.122.13
-:wq
+
+vi /etc/named/0.0.127.arpa
+dig -t NS . > /var/named/name.ca
+
+chown :named /var/named/*
+
+
