@@ -17,7 +17,12 @@ zone "0.0.127-addr.arpa" IN {
 	tpye master;
 	file "name.local";
 };
+zone "vboxg.net" IN {
+	type master;
+	file "vboxg.net.zone";
+};
 :wq
+
 vi /var/named/localhost.zone
 $TTL 600
 $ORIGIN localhost
@@ -42,7 +47,26 @@ $TTL 600
 1		IN	PTR	localhost.
 :wq
 dig -t NS . > /var/named/name.ca
+vi /var/named/vboxg.net.zone
+$TTL 600
+$ORIGIN vboxg.net.
+@		IN	SOA	ns.vboxg.net.	admin.vboxg.net. (
+				2015100501
+				1H
+				10M
+				1W
+				1D )
+		IN	NS	ns
+		IN	MX 10	mail
+ns		IN	A	202.205.84.11
+mail		IN	A	202.205.84.21
+www		IN	A	202.205.84.31
+ftp		IN	A	202.205.84.41
+dns		IN	CNAME	ns
+:wq
+
 chown :named /var/named/*
+
 service named configtest
 service named start
 dig -x 127.0.0.1
