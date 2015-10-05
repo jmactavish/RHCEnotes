@@ -18,13 +18,31 @@ zone "0.0.127-addr.arpa" IN {
 	file "name.local";
 };
 :wq
-vi /etc/named/localhost.zone
+vi /var/named/localhost.zone
 $TTL 600
-
-
-vi /etc/named/0.0.127.arpa
+$ORIGIN localhost
+@		IN	SOA	localhost.	admin.localhost. (
+				2015100501	;serial
+				1H		;refresh
+				10M		;retry
+				1W		;expire
+				1D )		;deny
+		IN	NS	localhost.
+localhost.	IN	A	127.0.0.1
+:wq
+vi /var/named/name.local
+$TTL 600
+@		IN	SOA	localhost.	admin.localhost. (
+				2015100501
+				1H
+				10M
+				1W
+				1D )
+		IN	NS	localhost.
+1		IN	PTR	localhost.
+:wq
 dig -t NS . > /var/named/name.ca
-
 chown :named /var/named/*
-
-
+service named configtest
+service named start
+dig -x 127.0.0.1
