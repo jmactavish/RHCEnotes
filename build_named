@@ -11,19 +11,23 @@ zone "." IN {
 };
 zone "localhost" IN {
 	type master;
-	file "localhost.zone";
+	file "localhost";
 };
-zone "0.0.127-addr.arpa" IN {
+zone "0.0.127.in-addr.arpa" IN {
 	tpye master;
-	file "name.local";
+	file "arpa/0.0.127.in-addr.arpa";
 };
 zone "vboxg.net" IN {
 	type master;
-	file "vboxg.net.zone";
+	file "vboxg.net";
+};
+zone "205.202.in-addr.arpa" IN {
+	tpye master;
+	file "arpa/205.202.in-addr.arpa";
 };
 :wq
 
-vi /var/named/localhost.zone
+vi /var/named/localhost
 $TTL 600
 $ORIGIN localhost
 @		IN	SOA	localhost.	admin.localhost. (
@@ -35,7 +39,7 @@ $ORIGIN localhost
 		IN	NS	localhost.
 localhost.	IN	A	127.0.0.1
 :wq
-vi /var/named/name.local
+vi /var/named/arpa/0.0.127.in-addr.arpa
 $TTL 600
 @		IN	SOA	localhost.	admin.localhost. (
 				2015100501
@@ -47,7 +51,7 @@ $TTL 600
 1		IN	PTR	localhost.
 :wq
 dig -t NS . > /var/named/name.ca
-vi /var/named/vboxg.net.zone
+vi /var/named/vboxg.net
 $TTL 600
 $ORIGIN vboxg.net.
 @		IN	SOA	ns.vboxg.net.	admin.vboxg.net. (
@@ -56,17 +60,39 @@ $ORIGIN vboxg.net.
 				10M
 				1W
 				1D )
-		IN	NS	ns
+		IN	NS	ns2
+		IN	NS	ns3
+		IN	NS	ns4
 		IN	MX 10	mail
-ns		IN	A	202.205.84.11
+ns1		IN	A	202.205.84.11
+ns2		IN	A	202.205.84.12
+ns3		IN	A	202.205.84.13
 mail		IN	A	202.205.84.21
 www		IN	A	202.205.84.31
-ftp		IN	A	202.205.84.41
-dns		IN	CNAME	ns
+dns		IN	CNAME	ns1
 :wq
+vi /var/named/arpa/205.202.in-addr.arpa
+$TTL 600
+@		IN	SOA	localhost.	admin.localhost. (
+				2015100501
+				1H
+				10M
+				1W
+				1D )
+		IN	NS	ns1.vboxg.net.
+		IN	NS	ns2.vboxg.net.
+11.84		IN	PTR	ns1.vboxg.net.
+12.84		IN	PTR	ns2.vboxg.net.
+13.84		IN	PTR	ns3.vboxg.net.
+21.84		IN	PTR	mail.vboxg.net.
+31.84		IN	PTR	www.vboxg.net.
 
-chown :named /var/named/*
+chown -R :named /var/named/*
 
+named-checkconf /etc/named.conf
+named-checkzone "0.0.127.in-addr.arpa" /var/named/arpa/0.0.127.in-addr.arpa
 service named configtest
 service named start
+netstat -tunlp | grep ":53\>"
+dig -t A www.vboxg.net @127.0.0.1
 dig -x 127.0.0.1
