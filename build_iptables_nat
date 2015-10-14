@@ -1,0 +1,28 @@
+# netfilter-iptables
+# tables:raw mangle nat filter
+# chains:POSTROUTING(nat) RREROUTING(nat) FORWARD(filter) INPUT(filter) OUTPUT(nat filter)
+# relationships:
+# in PREROUTING-INPUT
+# out OUTPUT-POSTROUTING
+# forward PREROUTING-FORWARD-POSTROUTING
+# examples:
+iptables -A INPUT -p tcp -j DROP # fliter
+iptables -L -n
+iptables -L -n --line-numbers
+iptables -D INPUT 2 # delele the 2th rule
+iptables -P INPUT DROP # set a default rule
+iptables -A INPUT -i eth1 -o eth2 -s 192.168.1.1 -d 10.154.0.0/24 -j ACCEPT # fliter(default)
+iptables -A FORWARD -s 192.168.122.0/24 -p udp --dport 53 -j ACCEPT # fliter
+iptables -A INPUT -p tcp --dport 20:21 -j ACCEPT
+iptables -I INPUT -p tcp -m multiport --dport 25,80,110,143 -j ACCEPT # fliter
+iptables -A INPUT -p tcp -m iprange --src-range 192.168.122.11-192.168.122.20 -j ACCEPT # fliter
+iptables -A INPUT -p icmp --icmp-type 8 -j DROP # decline ping requests from other hosts
+iptables -I INPUT -p tcp -m state--state ESTABLISHED,RELATED -j ACCEPT # link states: new established related
+
+# configure NAT(SNAT and DNAT) on a gateway:
+vi /etc/sysctl.conf # firstly enable forwarding by change net.ipv4.forwarding value
+:wq
+iptables -t nat -A POSTROUTING -s 192.168.1.0/24 -o eth0 -j SNAT --to-source 202.254.84.144 # this is so called SNAT, enable users from LAN to visit WWW
+iptables -t nat -A POSTROUTING -s 192.168.1.0/24 -o eth0 -j MASQUERADE # this is not so effective
+iptables -t nat -A PREROUTING -i eth1 -d 202.205.84.244 -p tcp --dport 80 -j DNAT --to-destination 192.168.1.101 # a website is hosted on 192.168.1.101, this is DNAT
+iptables -t nat -A PREROUTING -i eth1 -d 202.205.84.244 -p tcp --dport 8080 -j DNAT --to-destination 192.168.1.102:80 # port transforming
