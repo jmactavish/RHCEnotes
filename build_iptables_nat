@@ -9,7 +9,7 @@
 iptables -A INPUT -p tcp -j DROP # fliter
 iptables -L -n
 iptables -L -n --line-numbers
-iptables -D INPUT 2 # delele the 2th rule
+iptables -D INPUT 2 # delele the 2nd rule
 iptables -P INPUT DROP # set a default rule
 iptables -A INPUT -i eth1 -o eth2 -s 192.168.1.1 -d 10.154.0.0/24 -j ACCEPT # fliter(default)
 iptables -A FORWARD -s 192.168.122.0/24 -p udp --dport 53 -j ACCEPT # fliter
