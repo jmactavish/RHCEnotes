@@ -12,10 +12,12 @@ zone "." IN {
 zone "localhost" IN {
 	type master;
 	file "localhost";
+	allow-transfer { none; };
 };
 zone "0.0.127.in-addr.arpa" IN {
 	tpye master;
 	file "arpa/0.0.127.in-addr.arpa";
+	allow-transfer { none; };
 };
 zone "vboxg.net" IN {
 	type master;
@@ -61,12 +63,9 @@ $ORIGIN vboxg.net.
 				1W
 				1D )
 		IN	NS	ns2
-		IN	NS	ns3
-		IN	NS	ns4
 		IN	MX 10	mail
 ns1		IN	A	202.205.84.11
 ns2		IN	A	202.205.84.12
-ns3		IN	A	202.205.84.13
 mail		IN	A	202.205.84.21
 www		IN	A	202.205.84.31
 dns		IN	CNAME	ns1
@@ -79,11 +78,9 @@ $TTL 600
 				10M
 				1W
 				1D )
-		IN	NS	ns1.vboxg.net.
 		IN	NS	ns2.vboxg.net.
 11.84		IN	PTR	ns1.vboxg.net.
 12.84		IN	PTR	ns2.vboxg.net.
-13.84		IN	PTR	ns3.vboxg.net.
 21.84		IN	PTR	mail.vboxg.net.
 31.84		IN	PTR	www.vboxg.net.
 
