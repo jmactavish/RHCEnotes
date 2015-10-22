@@ -1,9 +1,16 @@
 yum install bind
 chkconfig named on
+#'lines marked with "#M" sould be specified on masters'
+#'lines marked with "#S" sould be specified on slaves'
 
 vi /etc/named.conf
+#view lan {
+#	match-clients { 192.168.57.0/24; };
+#}
 options {
 	directory "/var/named";
+	allow-query     { any; };
+#M	allow-transfer	{ 192.168.57.12; };
 };
 zone "." IN {
 	type hint;
@@ -19,13 +26,19 @@ zone "0.0.127.in-addr.arpa" IN {
 	file "arpa/0.0.127.in-addr.arpa";
 	allow-transfer { none; };
 };
-zone "vboxg.net" IN {
-	type master;
-	file "vboxg.net";
+zone "lan_rljhs.com" IN {
+#M	type master;
+#S	type slave;
+#S	masters	{ 192.168.57.11 };
+#M	file "lan_rljhs.com";
+#S	file "slaves/lan_rljhs.com";
 };
-zone "205.202.in-addr.arpa" IN {
-	tpye master;
-	file "arpa/205.202.in-addr.arpa";
+zone "168.192.in-addr.arpa" IN {
+#M	tpye master;
+#S	type slave;
+#S	masters	{ 192.168.57.11 };
+#M	file "arpa/168.192.in-addr.arpa";
+#S	file "slave/arpa/168.192.in-addr.arpa";
 };
 :wq
 
@@ -53,10 +66,10 @@ $TTL 600
 1		IN	PTR	localhost.
 :wq
 dig -t NS . > /var/named/name.ca
-vi /var/named/vboxg.net
+vi /var/named/lan_rljhs.com
 $TTL 600
-$ORIGIN vboxg.net.
-@		IN	SOA	ns.vboxg.net.	admin.vboxg.net. (
+$ORIGIN rljhs.com.
+@		IN	SOA	ns.rljhs.com.	admin.rljhs.com. (
 				2015100501
 				1H
 				10M
@@ -64,13 +77,13 @@ $ORIGIN vboxg.net.
 				1D )
 		IN	NS	ns2
 		IN	MX 10	mail
-ns1		IN	A	202.205.84.11
-ns2		IN	A	202.205.84.12
-mail		IN	A	202.205.84.21
-www		IN	A	202.205.84.31
+ns1		IN	A	192.168.57.11
+ns2		IN	A	192.168.57.12
+mail		IN	A	192.168.57.21
+www		IN	A	192.168.57.31
 dns		IN	CNAME	ns1
 :wq
-vi /var/named/arpa/205.202.in-addr.arpa
+vi /var/named/arpa/168.192.in-addr.arpa
 $TTL 600
 @		IN	SOA	localhost.	admin.localhost. (
 				2015100501
@@ -78,11 +91,11 @@ $TTL 600
 				10M
 				1W
 				1D )
-		IN	NS	ns2.vboxg.net.
-11.84		IN	PTR	ns1.vboxg.net.
-12.84		IN	PTR	ns2.vboxg.net.
-21.84		IN	PTR	mail.vboxg.net.
-31.84		IN	PTR	www.vboxg.net.
+		IN	NS	ns2.rljhs.com.
+11.57		IN	PTR	ns1.rljhs.com.
+12.57		IN	PTR	ns2.rljhs.com.
+21.57		IN	PTR	mail.rljhs.com.
+31.57		IN	PTR	www.rljhs.com.
 
 chown -R :named /var/named/*
 
@@ -91,5 +104,6 @@ named-checkzone "0.0.127.in-addr.arpa" /var/named/arpa/0.0.127.in-addr.arpa
 service named configtest
 service named start
 netstat -tunlp | grep ":53\>"
-dig -t A www.vboxg.net @127.0.0.1
+dig -t A www.rljhs.com @127.0.0.1
 dig -x 127.0.0.1
+
