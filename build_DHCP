@@ -1,7 +1,11 @@
 yum install dhcp
 vi /etc/dhcp/dhcpd.conf
 subnet 192.168.57.0 netmask 255.255.255.0 {
-range 192.168.57.250 192.168.57.252;
+range 192.168.57.191 192.168.57.199;
+option routers 192.168.57.1;
+option domain-name-servers 192.168.57.11;
+option domain-name "rljhs.net";
+max-lease-time 3600;
 }
 :wq
 chkconfig dhcpd on
