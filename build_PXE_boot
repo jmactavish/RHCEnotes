@@ -2,30 +2,34 @@
 yum install vsftpd
 chkconfig vsftpd on
 service vsftpd start
-mkdir /var/ftp/pub/DvDresourse
+mkdir /var/ftp/pub/DvDresource
 vi /etc/fstab
 #'add this line at the bottom'
-/dev/cdrom /var/ftp/pub/DvDresourse iso9660 ro 0 0
+/dev/cdrom /var/ftp/pub/DvDresource iso9660 ro 0 0
 :wq
 mount -a
 
 #'step 2: tftp required'
 yum install tftp tftp-server
-chkconfig tftpd on
-service xicentd start
-vi /etc/xinetd/tftp
+chkconfig tftp on
+service xinetd start
+#'sometimes need to enable tftpd by editing config file'
+vi /etc/xinetd.d/tftp
+#'disable the "disable" line by changing parameter to "no"'
 :wq
+mkdir -p /var/lib/tftpboot/pxelinux.cfg
 yum install syslinux
-cp /usr/share/syslinux/pxelinux.0 /tftpboot
-mkdir /tftpboot/pxelinux.cfg
-cp /var/ftp/pub/DvDresourse/isolinux.cfg /tftpboot/pxelinux.cfg/default
-cp /var/ftp/pub/DvDresourse/isolinux/* /tftpboot
-chmod 644 /tftpboot/pxelinux.cfg/default
+cp /usr/share/syslinux/pxelinux.0 /var/lib/tftpboot
+cp /var/ftp/pub/DvDresource/isolinux/isolinux.cfg /var/lib/tftpboot/pxelinux.cfg/default
+chmod 644 /var/lib/tftpboot/pxelinux.cfg/default
+cp /var/ftp/pub/DvDresource/isolinux/* /var/lib/tftpboot
 
 #'step 3: enable PXE boot on the DHCP sever'
 yum install dhcp
 vi /etc/dhcp/dhcpd.conf
 subnet 192.168.57.0 netmask 255.255.255.0 {
-range 192.168.57.250 192.168.57.252;
+range 192.168.57.191 192.168.57.199;
+next-server 192.168.57.21;
+filename "pxelinux.0";
 }
 :wq
