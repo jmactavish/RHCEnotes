@@ -9,4 +9,4 @@ max-lease-time 3600;
 }
 :wq
 chkconfig dhcpd on
-service shcpd start
+service dhcpd start
