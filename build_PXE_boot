@@ -11,18 +11,18 @@ mount -a
 
 #'step 2: tftp required'
 yum install tftp tftp-server
-chkconfig tftp on
-service xinetd start
 #'sometimes need to enable tftpd by editing config file'
 vi /etc/xinetd.d/tftp
 #'disable the "disable" line by changing parameter to "no"'
 :wq
+service xinetd start && chkconfig tftp on
 mkdir -p /var/lib/tftpboot/pxelinux.cfg
 yum install syslinux
-cp /usr/share/syslinux/pxelinux.0 /var/lib/tftpboot
+cp -p /usr/share/syslinux/pxelinux.0 /var/lib/tftpboot
 cp /var/ftp/pub/DvDresource/isolinux/isolinux.cfg /var/lib/tftpboot/pxelinux.cfg/default
 chmod 644 /var/lib/tftpboot/pxelinux.cfg/default
-cp /var/ftp/pub/DvDresource/isolinux/* /var/lib/tftpboot
+cp images/pxeboot/{initrd.img,vmlinuz} /var/lib/tftpboot/
+cp -rp /var/ftp/pub/DvDresource/isolinux/* /var/lib/tftpboot
 
 #'step 3: enable PXE boot on the DHCP sever'
 yum install dhcp
@@ -33,3 +33,4 @@ next-server 192.168.57.21;
 filename "pxelinux.0";
 }
 :wq
+service dhcpd start && chkconfig dhcpd on
