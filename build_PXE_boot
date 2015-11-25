@@ -1,13 +1,7 @@
 #'step 1: get vsftpd source ready'
-yum install vsftpd
-chkconfig vsftpd on
-service vsftpd start
-mkdir /var/ftp/pub/DvDresource
-vi /etc/fstab
-#'add this line at the bottom'
-/dev/cdrom /var/ftp/pub/DvDresource iso9660 ro 0 0
-:wq
-mount -a
+mkdir -p /var/ftp/pub/DvDresource
+echo '/dev/cdrom /var/ftp/pub/DvDresource iso9660 ro 0 0' >> /etc/fstab && mount -a
+yum -y install vsftpd && chkconfig vsftpd on && service vsftpd start
 
 #'step 2: tftp required'
 yum install tftp tftp-server
@@ -21,7 +15,6 @@ yum install syslinux
 cp -p /usr/share/syslinux/pxelinux.0 /var/lib/tftpboot
 cp /var/ftp/pub/DvDresource/isolinux/isolinux.cfg /var/lib/tftpboot/pxelinux.cfg/default
 chmod 644 /var/lib/tftpboot/pxelinux.cfg/default
-cp images/pxeboot/{initrd.img,vmlinuz} /var/lib/tftpboot/
 cp -rp /var/ftp/pub/DvDresource/isolinux/* /var/lib/tftpboot
 
 #'step 3: enable PXE boot on the DHCP sever'
@@ -34,3 +27,4 @@ filename "pxelinux.0";
 }
 :wq
 service dhcpd start && chkconfig dhcpd on
+setenforce 0
