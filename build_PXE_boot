@@ -1,0 +1,30 @@
+#''
+yum install vsftpd
+chkconfig vsftpd on
+service vsftpd start
+mkdir /var/ftp/pub/DvDresourse
+vi /etc/fstab
+#'add this line at the bottom'
+/dev/cdrom /var/ftp/pub/DvDresourse iso9660 ro 0 0
+:wq
+mount -a
+
+#''
+yum install tftp tftp-server
+chkconfig tftpd on
+service xicentd start
+vi /etc/xinetd/tftp
+:wq
+cp /usr/share/syslinux/pxelinux.0 /tftpboot
+mkdir /tftpboot/pxelinux.cfg
+cp /var/ftp/pub/DvDresourse/isolinux.cfg /tftpboot/pxelinux.cfg/default
+cp /var/ftp/pub/DvDresourse/isolinux/* /tftpboot
+chmod 644 /tftpboot/pxelinux.cfg/default
+
+#''
+yum install dhcp
+vi /etc/dhcp/dhcpd.conf
+
+#'syslinux'
+#''
+#''
