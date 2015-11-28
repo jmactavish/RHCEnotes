@@ -4,14 +4,19 @@ chkconfig named on
 #'lines marked with "#S" sould be specified on slaves'
 
 vi /etc/named.conf
-#view lan {
-#	match-clients { 192.168.57.0/24; };
-#}
+acl local-servers {
+	192.168.56/24;
+	192.168.57/24;
+};
 options {
 	directory "/var/named";
 	allow-query     { any; };
 #M	allow-transfer	{ 192.168.57.12; };
 };
+###############################################
+view lan {
+	match-clients { local-servers; };
+	recursion yes;
 zone "." IN {
 	type hint;
 	file "name.ca";
@@ -38,10 +43,25 @@ zone "168.192.in-addr.arpa" IN {
 #S	type slave;
 #S	masters	{ 192.168.57.11 };
 #M	file "arpa/168.192.in-addr.arpa";
-#S	file "slave/arpa/168.192.in-addr.arpa";
+#S	file "slaves/arpa/168.192.in-addr.arpa";
 };
+};
+###############################################
+view wan {
+	match-clients { any };
+	recurison no;
+zone "wan_rljhs.com" IN {
+#M	type master;
+#S	type slave;
+#S	masters	{ 202.205.84.11 };
+#M	file "lan_rljhs.com";
+#S	file "slaves/lan_rljhs.com";
+};
+};
+###############################################
 :wq
 
+#'3 zone files need to be created on every name server: localhost, 0.0.127.in-addr.arpa, name.ca, other zone files only need to be created on master'
 vi /var/named/localhost
 $TTL 600
 $ORIGIN localhost
@@ -96,6 +116,23 @@ $TTL 600
 12.57		IN	PTR	ns2.rljhs.com.
 21.57		IN	PTR	mail.rljhs.com.
 31.57		IN	PTR	www.rljhs.com.
+vi /var/named/wan_rljhs.com
+$TTL 600
+$ORIGIN rljhs.com.
+@		IN	SOA	ns.rljhs.com.	admin.rljhs.com. (
+				2015100501
+				1H
+				10M
+				1W
+				1D )
+		IN	NS	ns2
+		IN	MX 10	mail
+ns1		IN	A	202.205.84.11
+ns2		IN	A	202.205.84.12
+mail		IN	A	202.205.84.21
+www		IN	A	202.205.84.31
+dns		IN	CNAME	ns1
+:wq
 
 chown -R :named /var/named/*
 
