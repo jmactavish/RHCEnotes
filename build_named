@@ -5,8 +5,8 @@ chkconfig named on
 
 vi /etc/named.conf
 acl local-servers {
-	192.168.56/24;
-	192.168.57/24;
+	192.168.56.0/24;
+	192.168.57.0/24;
 };
 options {
 	directory "/var/named";
@@ -20,6 +20,7 @@ view lan {
 zone "." IN {
 	type hint;
 	file "name.ca";
+	allow-transfer { none; };
 };
 zone "localhost" IN {
 	type master;
@@ -31,12 +32,12 @@ zone "0.0.127.in-addr.arpa" IN {
 	file "arpa/0.0.127.in-addr.arpa";
 	allow-transfer { none; };
 };
-zone "lan_rljhs.com" IN {
+zone "lan_rljhs.net" IN {
 #M	type master;
 #S	type slave;
 #S	masters	{ 192.168.57.11 };
-#M	file "lan_rljhs.com";
-#S	file "slaves/lan_rljhs.com";
+#M	file "lan_rljhs.net";
+#S	file "slaves/lan_rljhs.net";
 };
 zone "168.192.in-addr.arpa" IN {
 #M	tpye master;
@@ -50,12 +51,12 @@ zone "168.192.in-addr.arpa" IN {
 view wan {
 	match-clients { any };
 	recurison no;
-zone "wan_rljhs.com" IN {
+zone "wan_rljhs.net" IN {
 #M	type master;
 #S	type slave;
 #S	masters	{ 202.205.84.11 };
-#M	file "lan_rljhs.com";
-#S	file "slaves/lan_rljhs.com";
+#M	file "wan_rljhs.net";
+#S	file "slaves/wan_rljhs.net";
 };
 };
 ###############################################
@@ -86,19 +87,19 @@ $TTL 600
 1		IN	PTR	localhost.
 :wq
 dig -t NS . > /var/named/name.ca
-vi /var/named/lan_rljhs.com
+vi /var/named/lan_rljhs.net
 $TTL 600
-$ORIGIN rljhs.com.
-@		IN	SOA	ns.rljhs.com.	admin.rljhs.com. (
+$ORIGIN rljhs.net.
+@		IN	SOA	ns.rljhs.net.	admin.rljhs.net. (
 				2015100501
 				1H
 				10M
 				1W
 				1D )
-		IN	NS	ns2
+		IN	NS	ns12
 		IN	MX 10	mail
-ns1		IN	A	192.168.57.11
-ns2		IN	A	192.168.57.12
+ns11		IN	A	192.168.57.11
+ns12		IN	A	192.168.57.12
 mail		IN	A	192.168.57.21
 www		IN	A	192.168.57.31
 dns		IN	CNAME	ns1
@@ -111,15 +112,15 @@ $TTL 600
 				10M
 				1W
 				1D )
-		IN	NS	ns2.rljhs.com.
-11.57		IN	PTR	ns1.rljhs.com.
-12.57		IN	PTR	ns2.rljhs.com.
-21.57		IN	PTR	mail.rljhs.com.
-31.57		IN	PTR	www.rljhs.com.
-vi /var/named/wan_rljhs.com
+		IN	NS	ns12.rljhs.net.
+11.57		IN	PTR	ns11.rljhs.net.
+12.57		IN	PTR	ns12.rljhs.net.
+21.57		IN	PTR	mail.rljhs.net.
+31.57		IN	PTR	www.rljhs.net.
+vi /var/named/wan_rljhs.net
 $TTL 600
-$ORIGIN rljhs.com.
-@		IN	SOA	ns.rljhs.com.	admin.rljhs.com. (
+$ORIGIN rljhs.net.
+@		IN	SOA	ns.rljhs.net.	admin.rljhs.net. (
 				2015100501
 				1H
 				10M
@@ -127,8 +128,8 @@ $ORIGIN rljhs.com.
 				1D )
 		IN	NS	ns2
 		IN	MX 10	mail
-ns1		IN	A	202.205.84.11
-ns2		IN	A	202.205.84.12
+ns11		IN	A	202.205.84.11
+ns12		IN	A	202.205.84.12
 mail		IN	A	202.205.84.21
 www		IN	A	202.205.84.31
 dns		IN	CNAME	ns1
@@ -141,6 +142,6 @@ named-checkzone "0.0.127.in-addr.arpa" /var/named/arpa/0.0.127.in-addr.arpa
 service named configtest
 service named start
 netstat -tunlp | grep ":53\>"
-dig -t A www.rljhs.com @127.0.0.1
+dig -t A www.rljhs.net @127.0.0.1
 dig -x 127.0.0.1
 
