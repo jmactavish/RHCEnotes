@@ -1,5 +1,6 @@
 #!/bin/bash
 #'step1: create account ftp_user and virtual users' datebase'
+yum -y install vsftpd
 echo 'user1
 passw0rd
 user2
@@ -21,7 +22,6 @@ account required pam_userdb.so db=/etc/vsftpd/virtual_user.db
 ' > /etc/pam.d/vsftpd
 
 #'step3: configure vsftpd'
-yum -y install vsftpd
 mkdir -p /etc/vsftpd/virtual_user_conf_files
 echo '
 guest_enable=YES
@@ -40,3 +40,5 @@ anon_other_write_enable=YES
 setenforce 0
 service vsftpd restart
 chkconfig vsftpd on
+
+#'while eventually it failed, said: "pam_userdb(vsftpd:auth): user_lookup: could not open database"'
