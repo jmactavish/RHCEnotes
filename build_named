@@ -126,13 +126,13 @@ $ORIGIN rljhs.net.
 				10M
 				1W
 				1D )
-		IN	NS	ns2
+		IN	NS	ns12
 		IN	MX 10	mail
 ns11		IN	A	202.205.84.11
 ns12		IN	A	202.205.84.12
 mail		IN	A	202.205.84.21
 www		IN	A	202.205.84.31
-dns		IN	CNAME	ns1
+dns		IN	CNAME	ns12
 :wq
 
 chown -R :named /var/named/*
