@@ -1,0 +1,133 @@
+#!/bin/bash
+#'this is a master'
+yum -y install bind bind-utils
+mkdir /var/named/arpa/
+chkconfig named on
+mv /etc/named.conf /etc/named.conf.bak
+echo '
+#set access-lists
+acl local-servers {
+192.168.56.0/24;
+192.178.57.0/24;
+};
+#set options
+options {
+directory "/var/named";
+allow-query { any; };
+};
+#add views
+view lan {
+match-clients { local-servers; };
+recursion yes;
+zone "." IN {
+type hint;
+file "name.ca";
+};
+zone "localhost" IN {
+type master;
+file "localhost";
+allow-transfer { none; };
+};
+zone "0.0.127.in-addr.arpa" IN {
+type master;
+file "arpa/0.0.127.in-addr.arpa";
+allow-transfer { none; };
+};
+zone "lan_rljhs.net" IN {
+type master;
+file "lan_rljhs.net";
+allow-transfer { local-servers; };
+};
+zone "168.192.in-addr.arpa" IN {
+type master;
+file "168.192.in-addr.arpa";
+allow-transfer { local-servers; };
+};
+};
+view wan {
+match-clients { any; };
+recursion no;
+zone "wan_rljhs.net" IN {
+type master;
+file "wan_rljhs.net";
+};
+};
+' > /etc/named.conf
+#'this is the end of the configuration file'
+
+#'next, get zone files ready'
+echo '
+$TTL 600
+$ORIGIN localhost
+@		IN	SOA	localhost.	admin.localhost. (
+				2015100501	;serial
+				1H		;refresh
+				10M		;retry
+				1W		;expire
+				1D )		;deny
+		IN	NS	localhost.
+localhost.	IN	A	127.0.0.1
+' > /var/named/localhost
+echo '
+$TTL 600
+@		IN	SOA	localhost.	admin.localhost. (
+				2015100501
+				1H
+				10M
+				1W
+				1D )
+		IN	NS	localhost.
+1		IN	PTR	localhost.
+' > /var/named/arpa/0.0.127.in-addr.arpa
+dig -t NS . > /var/named/name.ca
+echo '
+$TTL 600
+$ORIGIN rljhs.com.
+@		IN	SOA	ns.rljhs.com.	admin.rljhs.com. (
+				2015100501
+				1H
+				10M
+				1W
+				1D )
+		IN	NS	ns12
+		IN	MX 10	mail
+ns11		IN	A	192.168.57.11
+ns12		IN	A	192.168.57.12
+mail		IN	A	192.168.57.21
+www		IN	A	192.168.57.31
+dns		IN	CNAME	ns12
+' > /var/named/lan_rljhs.net
+echo '
+$TTL 600
+@		IN	SOA	localhost.	admin.localhost. (
+				2015100501
+				1H
+				10M
+				1W
+				1D )
+		IN	NS	ns12.rljhs.net.
+11.57		IN	PTR	ns11.rljhs.net.
+12.57		IN	PTR	ns12.rljhs.net.
+21.57		IN	PTR	mail.rljhs.net.
+31.57		IN	PTR	www.rljhs.net.
+' > /var/named/arpa/168.192.in-addr.arpa
+echo '
+$TTL 600
+$ORIGIN rljhs.net.
+@		IN	SOA	ns.rljhs.net.	admin.rljhs.net. (
+				2015100501
+				1H
+				10M
+				1W
+				1D )
+		IN	NS	ns12
+		IN	MX 10	mail
+ns11		IN	A	202.205.84.11
+ns12		IN	A	202.205.84.12
+mail		IN	A	202.205.84.21
+www		IN	A	202.205.84.31
+dns		IN	CNAME	ns12
+' > /var/named/wan_rljhs.net
+chown -R :named /var/named/*
+service named start
+
