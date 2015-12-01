@@ -1,4 +1,5 @@
-yum install bind
+yum install bind bind-utils
+mkdir /var/named/arpa/
 chkconfig named on
 #'lines marked with "#M" sould be specified on masters'
 #'lines marked with "#S" sould be specified on slaves'
@@ -49,8 +50,8 @@ zone "168.192.in-addr.arpa" IN {
 };
 ###############################################
 view wan {
-	match-clients { any };
-	recurison no;
+	match-clients { any; };
+	recursion no;
 zone "wan_rljhs.net" IN {
 #M	type master;
 #S	type slave;
