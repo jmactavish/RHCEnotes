@@ -66,7 +66,6 @@ zone "wan_rljhs.net" IN {
 #'3 zone files need to be created on every name server: localhost, 0.0.127.in-addr.arpa, name.ca, other zone files only need to be created on master'
 vi /var/named/localhost
 $TTL 600
-$ORIGIN localhost
 @		IN	SOA	localhost.	admin.localhost. (
 				2015100501	;serial
 				1H		;refresh
@@ -90,20 +89,20 @@ $TTL 600
 dig -t NS . > /var/named/name.ca
 vi /var/named/lan_rljhs.net
 $TTL 600
-$ORIGIN rljhs.net.
 @		IN	SOA	ns.rljhs.net.	admin.rljhs.net. (
 				2015100501
 				1H
 				10M
 				1W
 				1D )
-		IN	NS	ns12
-		IN	MX 10	mail
-ns11		IN	A	192.168.57.11
-ns12		IN	A	192.168.57.12
-mail		IN	A	192.168.57.21
-www		IN	A	192.168.57.31
-dns		IN	CNAME	ns1
+		IN	NS	ns12.57
+		IN	MX 10	mail.57
+ns11.57		IN	A	192.168.57.11
+ns12.57		IN	A	192.168.57.12
+mail.57		IN	A	192.168.57.21
+www.57		IN	A	192.168.57.31
+dns.57		IN	CNAME	ns12.57
+dns		IN	CNAME	ns12.57
 :wq
 vi /var/named/arpa/168.192.in-addr.arpa
 $TTL 600
@@ -120,20 +119,17 @@ $TTL 600
 31.57		IN	PTR	www.rljhs.net.
 vi /var/named/wan_rljhs.net
 $TTL 600
-$ORIGIN rljhs.net.
 @		IN	SOA	ns.rljhs.net.	admin.rljhs.net. (
 				2015100501
 				1H
 				10M
 				1W
 				1D )
-		IN	NS	ns12
+		IN	NS	dns
 		IN	MX 10	mail
-ns11		IN	A	202.205.84.11
-ns12		IN	A	202.205.84.12
+dns		IN	A	202.205.84.12
 mail		IN	A	202.205.84.21
 www		IN	A	202.205.84.31
-dns		IN	CNAME	ns12
 :wq
 
 chown -R :named /var/named/*
