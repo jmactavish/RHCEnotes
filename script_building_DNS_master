@@ -1,4 +1,4 @@
-!/bin/bash
+#!/bin/bash
 yum -y install bind bind-utils
 sed -i '/allow-query *{ localhost; };/s/localhost/any/' /etc/named.conf 
 sed -i '/listen-on port 53 { 127.0.0.1; };/s/127.0.0.1/any/' /etc/named.conf 
