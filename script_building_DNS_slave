@@ -42,5 +42,3 @@ allow-transfer { local-servers; };
 };
 ' >> /etc/named.conf
 service named start
-
-#'ahhh! couldn't get rljhs.net zone from master!!!'
