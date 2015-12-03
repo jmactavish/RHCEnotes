@@ -42,3 +42,4 @@ allow-transfer { local-servers; };
 };
 ' >> /etc/named.conf
 service named start
+chkconfig named on

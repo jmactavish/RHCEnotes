@@ -68,3 +68,4 @@ ns13	A	202.205.84.13
 ' > /var/named/rljhs.net
 chown -R :named /var/named/*
 service named start
+chkconfig named on
