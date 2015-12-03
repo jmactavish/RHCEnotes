@@ -36,7 +36,7 @@ allow-transfer { local-servers; };
 
 #'create 2 zone files'
 echo '$TTL 1D
-@	IN SOA	57.rljhs.net rname.invalid. (
+@	IN SOA	@ rname.invalid. (
 					0	; serial
 					1D	; refresh
 					1H	; retry
@@ -49,7 +49,7 @@ ns12	A	192.168.57.12
 ns13	A	192.168.57.13
 ' > /var/named/57.rljhs.net
 echo '$TTL 1D
-@	IN SOA	rljhs.net rname.invalid. (
+@	IN SOA	@ rname.invalid. (
 					0	; serial
 					1D	; refresh
 					1H	; retry
@@ -57,10 +57,9 @@ echo '$TTL 1D
 					3H )	; minimum
 	NS	ns12.rljhs.net.
 	NS	ns13.rljhs.net.
-ns11	A	202.205.84.12
+ns11	A	202.205.84.11
 ns12	A	202.205.84.12
 ns13	A	202.205.84.13
-dns	CNAME	ns11
 ' > /var/named/rljhs.net
 chown -R :named /var/named/*
 service named start
