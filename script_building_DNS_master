@@ -22,6 +22,11 @@ type master;
 file "57.rljhs.net";
 allow-transfer { local-servers; };
 };
+zone "rljhs.net" IN {
+type master;
+file "rljhs.net";
+allow-transfer { local-servers; };
+};
 };
 view wan {
 match-clients { any; };

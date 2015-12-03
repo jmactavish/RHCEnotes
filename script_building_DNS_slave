@@ -23,6 +23,12 @@ masters { 192.168.57.11; };
 file "slaves/57.rljhs.net";
 allow-transfer { local-servers; };
 };
+zone "rljhs.net" IN {
+type slave;
+masters { 192.168.57.11; };
+file "slaves/rljhs.net";
+allow-transfer { local-servers; };
+};
 };
 view wan {
 match-clients { any; };
