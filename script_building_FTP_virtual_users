@@ -1,0 +1,42 @@
+#!/bin/bash
+#'step1: create account ftp_user and virtual users' datebase'
+yum -y install vsftpd
+echo 'user1
+passw0rd
+user2
+passw0rd
+user3
+passw0rd' > /etc/vsftpd/virtual_user.list
+#'use command db_load to trans list to a database file'
+db_load -T -t hash -f /etc/vsftpd/virtual_user.list /etc/vsftpd/virtual_user.db
+chmod 600 /etc/vsftpd/virtual_user.db && rm /etc/vsftpd/virtual_user.list
+useradd -d /var/ftproot -s /sbin/nologin ftp_user
+chmod 755 /var/ftproot
+
+#'step2: use pam to read virtual users' database'
+mv /etc/pam.d/vsftpd /etc/pam.d/vsftpd.bak
+echo '
+#%PAM-1.0
+auth required pam_userdb.so db=/etc/vsftpd/virtual_user
+account required pam_userdb.so db=/etc/vsftpd/virtual_user
+' > /etc/pam.d/vsftpd
+
+#'step3: configure vsftpd'
+mkdir -p /etc/vsftpd/virtual_user_conf_files
+echo '
+guest_enable=YES
+guest_username=ftp_user
+user_config_dir=/etc/vsftpd/virtual_user_conf_files
+' >> /etc/vsftpd/vsftpd.conf
+echo '
+anon_upload_enable=YES
+' > /etc/vsftpd/virtual_user_conf_files/user1
+echo '
+anon_mkdir_write_enable=YES
+' > /etc/vsftpd/virtual_user_conf_files/user2
+echo '
+anon_other_write_enable=YES
+' > /etc/vsftpd/virtual_user_conf_files/user3
+setenforce 0
+service vsftpd restart
+chkconfig vsftpd on
