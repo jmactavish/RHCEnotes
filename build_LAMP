@@ -56,6 +56,7 @@ wget http://mirror.bit.edu.cn/apache//httpd/httpd-2.4.17.tar.gz
 tar -xzf httpd-2.4* && rm !$
 ./configure --prefix=/usr/local/apache2 --sysconfdir=/usr/local/apache2/etc --with-included-apr --enable-so --enable-deflate=shared --enable-expires=shared --enable-rewrite=shared
 make && make install
+cd
 service httpd stop
 chkconfig httpd off
 setenforce 0
@@ -67,3 +68,43 @@ service iptables save
 echo '/usr/local/apache2/bin/apachectl start' >> /etc/rc.d/rc.local
 
 yum -y install ncurses-devel cmake bison
+useradd mysql
+wget https://dev.mysql.com/get/Downloads/MySQL-5.6/mysql-5.6.27.tar.gz
+tar -xzf mysql* rm -f !$
+cd mysql*
+cmake -DCMAKE_INSTALL_PREFIX=/usr/local/mysql -DMYSQL_UNIX_ADDR=/tmp/mysql.sock -DEXTRA_CHARSETS=all -DDEFAULT_CHARSET=utf8 -DDEFAULT_COLLATION=utf8_general_ci _DWITH_MYISAM_STORAGE_ENGINE=1 -DWITH_INNOBASE_STORAGE_ENGINE=1 -DWITH_MEMORY_STORAGE_ENGINE=1 -DWITH_READLINE=1 -DENABLED_LOCAL_INFILE=1 -DMYSQL_USER=mysql _DMYSQL_TCP_PORT=3306
+make && make install
+cd
+chown -R root /usr/local/mysql/*
+chown -R mysql /usr/local/mysql/data
+cp fy /usr/local/mysql/support-files/my-medium.cnf /etc/my.cnf
+/usr/local/mysql/scripts/mysql_insatll_db --user=mysql
+/usr/local/mysql/bin/mysql_safe --user=mysql &
+#'may need to press "enter" here'
+/usr/local/mysql/bin/mysqladmin -uroot password 'passw0rd'
+
+yum -y install libtool*
+sed -i '/qd_free/s/$/\n\nvoid {"data};/' /usr/local/gd2/include/gd_io.h
+yum -y install libxml2-devel
+git clone https://github.com/php/php-src.git
+cd php-src && ./configure --prefix=/usr/local/php --with-config-file-path=/usr/local/php/etc --with-zpxs2=/usr/local/apache2/bin/apxs --with-mysql=/usr/local/mysql --with-libxml-dir=/usr/local/libxmls --with-jpeg-dir=/usr/local/jpeg6/ --with-png-dir=/usr/local/libpng --with-freetype-dir=/usr/local/freetype/ --with=gd=/usr/local/gd2 --with-mcrypt=/usr/local/libmcrypt --with-mysqli=/usr/local/mysql/bin/mysql_config --enable-soap --enable-mbstring=all --enable-sockets --with-pdo-mysql=/usr/local/mysql --without-pear
+make && make install
+cd
+mkdir -p /usr/local/php/etc
+cp php.ini-production /usr/local/php/etc/php.ini
+sed -i '/AddType/s/^/AddType application/x-httpd-php .php .phps .phtml\n/' /usr/local/apache2/etc/httpd.conf
+/usr/local/apache2/bin/apachectl stop && /usr/local/apache2/bin/apachectl start
+echo '
+<?php
+phpinfo();
+?>
+' > /usr/localapache2/hcdocs/index.php
+echo '
+<?php
+$link=mysql_connect('localhost','root','passw0rd');
+if#missed
+?>
+' > /usr/localapache2/hcdocs/mysql.php
+
+wget https://files.phpmyadmin.net/phpMyAdmin/4.5.2/phpMyAdmin-4.5.2-all-languages.tar.gz
+tar -xzf phpMyAdmin*
