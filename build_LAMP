@@ -107,4 +107,19 @@ if#missed
 ' > /usr/localapache2/hcdocs/mysql.php
 
 wget https://files.phpmyadmin.net/phpMyAdmin/4.5.2/phpMyAdmin-4.5.2-all-languages.tar.gz
-tar -xzf phpMyAdmin*
+tar -xzf phpMyAdmin* && rm !$
+cp -r phpMyAdmin* /usr/local/apache2/htdocs/phpmyadmin
+cd !$ && cp config.sample.inc.php config.inc.php && sed -i '/auth_type/s/cookie/http/' config.inc.php
+cd
+
+wget http://download.comsenz.com/Discuz/7.2/Discuz_7.2_SC_UTF8.zip
+unzip Discuz_7.2_SC_UTF8.zip && rm -f !$ && cp -r Discuz*/upload /usr/local/apache2/htdocs/bbs
+cd !$ && chown -R daemon:daemon attachments/ forumdata/ config.inc.php teplates/ uc_client/data/cache/
+cd
+/usr/local/mysql/bin/mysql -uroot -p
+create database bbs;
+grant all on bbs.* to bbs_admin@'192.168.57.0/24' identified by 'passw0rd';
+exit
+sed -i '/short_open_tag/s/off/on/' /usr/local/php/etc/php.ini
+/usr/local/apache2/bin/apachectl stop
+/usr/local/apache2/bin/apachectl start
