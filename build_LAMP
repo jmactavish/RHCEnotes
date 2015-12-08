@@ -8,11 +8,11 @@ tar -xzvf libmcrypt-2.5.8.tar.gz && rm -f libmcrypt-2.5.8.tar.gz
 cd libmcrypt-2.5.8 && ./configure --prefix=/usr/local/libmcrypt && make && make install
 cd libltdl/ && ./configure --enable-ltdl-install && make && make install
 cd
-#'get mhash! http://sourceforge.net/projects/mhash/files/latest/download'
+wget http://sourceforge.net/projects/mhash/files/mhash/0.9.9.9/mhash-0.9.9.9.tar.gz
 tar -xzvf mhash* && rm -f mhash*.tar.gz
 cd mhash* && ./configure && make && make install
 cd
-#'get mcrypt! http://sourceforge.net/projects/mcrypt/files/latest/download'
+wget http://sourceforge.net/projects/mcrypt/files/MCrypt/2.6.8/mcrypt-2.6.8.tar.gz
 tar -xzvf mcrypt* && rm -f mcrypt*.tar.gz
 cd mcrypt* && LD_LIBRARY_PATH=/usr/local/libmcrypt/usr/local/lib ./configure --with-libmcrypt-prefix=/usr/local/libmcrypt && make && make install
 cd
@@ -102,7 +102,8 @@ phpinfo();
 echo '
 <?php
 $link=mysql_connect('localhost','root','passw0rd');
-if#missed
+if($link) echo "this is the mysql test page";
+mysql_close();
 ?>
 ' > /usr/localapache2/hcdocs/mysql.php
 
