@@ -1,7 +1,7 @@
-yum -y install python-devel
+yum -y install python-devel gcc*
 cd
 git clone git://git.gnome.org/libxml2
-cd libxml2 && make && make install
+cd libxml2* && ./configure --prefix=/usr/local/libxml2 && make && make install
 cd
 wget sourceforge.net/projects/mcrypt/files/Libmcrypt/2.5.8/libmcrypt-2.5.8.tar.gz
 tar -xzvf libmcrypt-2.5.8.tar.gz && rm -f libmcrypt-2.5.8.tar.gz
