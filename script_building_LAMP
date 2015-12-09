@@ -1,0 +1,59 @@
+#!/bin/bash
+#'it's a long story lol'
+
+#'step1: get add-ons ready'
+yum -y install python-devel gcc*
+#'addon1: libxml2 (a library resolving xml files)'
+cd && git clone git://git.gnome.org/libxml2
+cd libxml2 && ./configure --prefix=/usr/local/libxml2 && make && make install
+#'addon2: libmcrypt (a encryption libriary)'
+cd && wget sourceforge.net/projects/mcrypt/files/Libmcrypt/2.5.8/libmcrypt-2.5.8.tar.gz
+tar -xzvf libmcrypt-2.5.8.tar.gz && rm -f libmcrypt-2.5.8.tar.gz
+cd libmcrypt-2.5.8 && ./configure --prefix=/usr/local/libmcrypt && make && make install
+cd libltdl/ && ./configure --enable-ltdl-install && make && make install
+#'addon3: mhash (extened library for encrypting PHP)'
+cd && wget http://sourceforge.net/projects/mhash/files/mhash/0.9.9.9/mhash-0.9.9.9.tar.gz
+tar -xzvf mash-0.9.9.9 && rm -f mash-0.9.9.9.tar.gz
+cd mash-0.9.9.9 && ./configure && make && make install
+#'addon4: mcrypt (another library for PHP encryption)'
+cd && wget http://sourceforge.net/projects/mcrypt/files/MCrypt/2.6.8/mcrypt-2.6.8.tar.gz
+tar -xzvf mcrypt-2.6.8 && rm -f mcrypt-2.6.8.tar.gz
+cd mcrypt-2.6.8 && LD_LIBRARY_PATH=/usr/local/libmcrypt/lib:/usr/local/lib ./configure --with-libmcrypt-prefix=/usr/local/libmcrypt && make && make install
+#'addon5: zlib (a libriary of compression)'
+cd && wget http://zlib.net/zlib-1.2.8.tar.gz
+tar -xzvf zlib-1.2.8 && rm -f zlib-1.2.8.tar.gz
+cd zlib-1.2.8 && ./configure && make && make install
+#'addon6: libpng (failed to install)'
+#'addon7: jpeg6 (failed to install)'
+#'addon8: freetype (font library)'
+cd && wget http://download.savannah.gnu.org/releases/freetype/freetype-2.4.0.tar.gz
+tar -xzf freetype-2.4.0 && rm -f freetype-2.4.0.tar.gz
+cd freetype-2.4.0 && ./configure --prefix=/usr/local/freetype && make && make install
+#'addon9: gd (failed to install)'
+
+#'step2: install httpd-2.4 & disable yum-installed-httpd'
+yum -y install pcre-devel
+cd && wget http://mirror.bit.edu.cn/apache//httpd/httpd-2.4.17.tar.gz
+tar -xzf httpd-2.4.17.tar.gz && rm -f httpd-2.4.17.tar.gz
+wget http://apache.fayea.com//apr/apr-1.5.2.tar.gz
+tar -xzf apr-1.5.2 && rm -f apr-1.5.2.tar.gz
+wget http://apache.fayea.com//apr/apr-util-1.5.4.tar.gz
+tar -xzf apr-util-1.5.4 && rm -f apr-util-1.5.4.tar.gz
+cp -r apr-1.5.2/ httpd-2.4.17/srclib/apr
+cp -r apr-util-1.5.4/ httpd-2.4.17/srclib/apr-util
+cd httpd-2.4.17
+./configure --prefix=/usr/local/apache2 --sysconfdir=/usr/local/apache2/etc --with-included-apr --enable-so --enable-deflate=shared --enable-expires=shared --enable-rewrite=shared
+make && make install
+service httpd stop ; chkconfig httpd off
+setenforce 0
+sed -i '/SELINUX=enabled/s/enabled/permissive/' /etc/sysconfig/selinux
+iptables -F ; iptables -X && service iptables save
+/usr/local/apache2/bin/apachectl start
+echo '/usr/local/apache2/bin/apachectl start' >> /etc/rc.d/rc.local
+
+#'step3: install mysql'
+#'step4: install php'
+#'step5: create test pages & tests'
+#'step6: deploy some web applications'
+#'app1: phpmyadmin'
+#'app2: Discuz'

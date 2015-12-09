@@ -58,12 +58,10 @@ wget http://apache.fayea.com//apr/apr-util-1.5.4.tar.gz
 tar -xzf apr-util* && rm -f apr-util*.tar.gz
 cp -r apr-1.5.2/ httpd-2.4.17/srclib/apr
 cp -r apr-util-1.5.4/ httpd-2.4.17/srclib/apr-util
-svn co svn://vcs.exim.org/pcre2/code/trunk pcre
-cd pcre && ./configure && make && make install
 cd
+yum -y install pcre-devel
 cd httpd*
 ./configure --prefix=/usr/local/apache2 --sysconfdir=/usr/local/apache2/etc --with-included-apr --enable-so --enable-deflate=shared --enable-expires=shared --enable-rewrite=shared
-#'why why why!!! pcre-config for libpcre not found'
 make && make install
 cd
 service httpd stop
