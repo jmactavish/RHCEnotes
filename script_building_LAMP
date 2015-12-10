@@ -22,48 +22,48 @@ iptables -F ; iptables -X && service iptables save
 echo '/usr/local/apache2/bin/apachectl start' >> /etc/rc.d/rc.local
 
 #'step2: get add-ons ready'
-#'addon1: libxml2 (a library resolving xml files & multi languages)'
-cd && wget http://xmlsoft.org/sources/libxml2-sources-2.9.3.tar.gz
-tar -xzf libxml2-sources-2.9.3.tar.gz && rm -f libxml2-sources-2.9.3.tar.gz
-cd libxml2-2.9.3 && ./configure --prefix=/usr/local/libxml2 && make && make install
-#'addon2: libmcrypt (a encryption libriary)'
-cd && wget sourceforge.net/projects/mcrypt/files/Libmcrypt/2.5.8/libmcrypt-2.5.8.tar.gz
-tar -xzvf libmcrypt-2.5.8.tar.gz && rm -f libmcrypt-2.5.8.tar.gz
-cd libmcrypt-2.5.8 && ./configure --prefix=/usr/local/libmcrypt && make && make install
-cd libltdl/ && ./configure --enable-ltdl-install && make && make install
-#'addon3: mhash (extened library for encrypting PHP)'
-cd && wget http://sourceforge.net/projects/mhash/files/mhash/0.9.9.9/mhash-0.9.9.9.tar.gz
-tar -xzvf mhash-0.9.9.9.tar.gz && rm -f mhash-0.9.9.9.tar.gz
-cd mhash-0.9.9.9 && ./configure && make && make install
-#'addon4: mcrypt (another library for PHP encryption)'
-cd && wget http://sourceforge.net/projects/mcrypt/files/MCrypt/2.6.8/mcrypt-2.6.8.tar.gz
-tar -xzvf mcrypt-2.6.8.tar.gz && rm -f mcrypt-2.6.8.tar.gz
-cd mcrypt-2.6.8 && LD_LIBRARY_PATH=/usr/local/libmcrypt/lib:/usr/local/lib ./configure --with-libmcrypt-prefix=/usr/local/libmcrypt && make && make install
-#'addon5: zlib (a libriary of compression)'
-cd && wget http://zlib.net/zlib-1.2.8.tar.gz
-tar -xzvf zlib-1.2.8.tar.gz && rm -f zlib-1.2.8.tar.gz
-cd zlib-1.2.8 && ./configure && make && make install
-#'addon6: libpng (failed to install)'
+#'addon1: libpng' 
 cd && wget sourceforge.net/projects/libpng/files/libpng16/1.6.19/libpng-1.6.19.tar.gz
 tar -xzvf libpng-1.6.19.tar.gz && rm -f libpng-1.6.19.tar.gz
 cd libpng-1.6.19 && ./configure --prefix=/usr/local/libpng && make && make install
-#'addon7: jpeg6 (failed to install)'
-cd && wget http://www.ijg.org/files/jpegsr6b.zip
+#'addon2: jpeg6'
+cd && wget http://www.ijg.org/files/jpegsrc.v6b.tar.gz 
 mkdir -p /usr/local/jpeg6/{bin,lib,include,/man/man1}
-unzip jpegsr6b.zip && rm -f jpegsr6b.zip
+tar -xzf jpegsrc.v6b.tar.gz && rm -f jpegsrc.v6b.tar.gz
 cd jpeg-6b && chmod -R +x *
 ./configure --prefix=/usr/local/jpeg6 --enable-shared --enable-static
 make && make install
-#'addon8: freetype (font library)'
+#'addon3: freetype (font library)'
 cd && wget http://download.savannah.gnu.org/releases/freetype/freetype-2.4.0.tar.gz
 tar -xzf freetype-2.4.0.tar.gz && rm -f freetype-2.4.0.tar.gz
 cd freetype-2.4.0 && ./configure --prefix=/usr/local/freetype && make && make install
-#'addon9: gd (failed to install graphs library)'
+#'addon4: gd (graphs library)'
 cd && wget github.com/libgd/libgd/releases/download/gd-2.1.1/libgd-2.1.1.tar.gz
 tar -xzf libgd-2.1.1.tar.gz && rm -f libgd-2.1.1.tar.gz
 mkdir /usr/local/gd2
 cd libgd-2.1.1 && ./configure --prefix=/usr/local/gd2 --with-jpeg=/usr/local/jpeg6/ --with-freetype=/usr/local/freetype/ --with-png=/usr/local/libpng/
 make && make install
+#'addon5: libxml2 (a library resolving xml files & multi languages)'
+cd && wget http://xmlsoft.org/sources/libxml2-sources-2.9.3.tar.gz
+tar -xzf libxml2-sources-2.9.3.tar.gz && rm -f libxml2-sources-2.9.3.tar.gz
+cd libxml2-2.9.3 && ./configure --prefix=/usr/local/libxml2 && make && make install
+#'addon6: libmcrypt (a encryption libriary)'
+cd && wget sourceforge.net/projects/mcrypt/files/Libmcrypt/2.5.8/libmcrypt-2.5.8.tar.gz
+tar -xzvf libmcrypt-2.5.8.tar.gz && rm -f libmcrypt-2.5.8.tar.gz
+cd libmcrypt-2.5.8 && ./configure --prefix=/usr/local/libmcrypt && make && make install
+cd libltdl/ && ./configure --enable-ltdl-install && make && make install
+#'addon7: mhash (extened library for encrypting PHP)'
+cd && wget http://sourceforge.net/projects/mhash/files/mhash/0.9.9.9/mhash-0.9.9.9.tar.gz
+tar -xzvf mhash-0.9.9.9.tar.gz && rm -f mhash-0.9.9.9.tar.gz
+cd mhash-0.9.9.9 && ./configure && make && make install
+#'addon8: mcrypt (another library for PHP encryption)'
+cd && wget http://sourceforge.net/projects/mcrypt/files/MCrypt/2.6.8/mcrypt-2.6.8.tar.gz
+tar -xzvf mcrypt-2.6.8.tar.gz && rm -f mcrypt-2.6.8.tar.gz
+cd mcrypt-2.6.8 && LD_LIBRARY_PATH=/usr/local/libmcrypt/lib:/usr/local/lib ./configure --with-libmcrypt-prefix=/usr/local/libmcrypt && make && make install
+#'addon9: zlib (a libriary of compression)'
+cd && wget http://zlib.net/zlib-1.2.8.tar.gz
+tar -xzvf zlib-1.2.8.tar.gz && rm -f zlib-1.2.8.tar.gz
+cd zlib-1.2.8 && ./configure && make && make install
 
 #'step3: install mysql'
 #'step4: install php'
