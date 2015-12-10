@@ -16,7 +16,7 @@ cd httpd-2.4.17
 make && make install
 service httpd stop ; chkconfig httpd off
 setenforce 0
-sed -i '/SELINUX=enabled/s/enabled/permissive/' /etc/sysconfig/selinux
+sed -i '/SELINUX=enforcing/s/enforcing/permissive/' /etc/sysconfig/selinux
 iptables -F ; iptables -X && service iptables save
 /usr/local/apache2/bin/apachectl start
 echo '/usr/local/apache2/bin/apachectl start' >> /etc/rc.d/rc.local
