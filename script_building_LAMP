@@ -66,6 +66,21 @@ tar -xzvf zlib-1.2.8.tar.gz && rm -f zlib-1.2.8.tar.gz
 cd zlib-1.2.8 && ./configure && make && make install
 
 #'step3: install mysql'
+cd && wget https://dev.mysql.com/get/Downloads/MySQL-5.6/mysql-5.6.27.tar.gz
+useradd mysql
+tar -xzf mysql-5.6.27.tar.gz && rm -f mysql-5.6.27.tar.gz
+cd mysql-5.6.27
+cmake -DCMAKE_INSTALL_PREFIX=/usr/local/mysql -DMYSQL_UNIX_ADDR=/tmp/mysql.sock -DEXTRA_CHARSETS=all -DDEFAULT_CHARSET=utf8 -DDEFAULT_COLLATION=utf8_general_ci -DWITH_MYISAM_STORAGE_ENGINE=1 -DWITH_INNOBASE_STORAGE_ENGINE=1 -DWITH_MEMORY_STORAGE_ENGINE=1 -DWITH_READLINE=1 -DENABLED_LOCAL_INFILE=1 -DMYSQL_USER=mysql -DMYSQL_TCP_PORT=3306
+make && make install
+chown -R root /usr/local/mysql/*
+chown -R mysql /usr/local/mysql/data
+cp -f /usr/local/mysql/support-files/my-default.cnf /etc/my.cnf
+/usr/local/mysql/scripts/mysql_insatll_db --user=mysql
+/usr/local/mysql/bin/mysql_safe --user=mysql &
+#'may need to press "enter" here'
+/usr/local/mysql/bin/mysqladmin -uroot password 'passw0rd'
+
+
 #'step4: install php'
 #'step5: create test pages & tests'
 #'step6: deploy some web applications'
