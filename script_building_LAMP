@@ -75,13 +75,24 @@ make && make install
 chown -R root /usr/local/mysql/*
 chown -R mysql /usr/local/mysql/data
 cp -f /usr/local/mysql/support-files/my-default.cnf /etc/my.cnf
-/usr/local/mysql/scripts/mysql_insatll_db --user=mysql
-/usr/local/mysql/bin/mysql_safe --user=mysql &
+sed -i '/socket/s@/var/lib/mysql@/tmp@' /etc/my.cnf
+sed -i '/datadir/s@/var/lib/mysql@/usr/local/mysql/data@' /etc/my.cnf
+/usr/local/mysql/scripts/mysql_install_db --user=mysql --basedir=/usr/local/mysql --datadir=/usr/local/mysql/data &
 #'may need to press "enter" here'
+
+mkdir /var/run/mysqld && chown mysql:mysql /var/run/mysqld
+/usr/local/mysql/bin/mysqld_safe --user=mysql &
+#'may need to press "enter" here'
+
 /usr/local/mysql/bin/mysqladmin -uroot password 'passw0rd'
 
 
 #'step4: install php'
+sed -i '71s/$/\n\nvoid {"data};/' /usr/local/gd2/include/gd_io.h
+cd && git clone https://github.com/php/php-src.git
+cd php-src && ./configure --prefix=/usr/local/php --with-config-file-path=/usr/local/php/etc --with-zpxs2=/usr/local/apache2/bin/apxs --with-mysql=/usr/local/mysql --with-libxml-dir=/usr/local/libxmls --with-jpeg-dir=/usr/local/jpeg6/ --with-png-dir=/usr/local/libpng --with-freetype-dir=/usr/local/freetype/ --with=gd=/usr/local/gd2 --with-mcrypt=/usr/local/libmcrypt --with-mysqli=/usr/local/mysql/bin/mysql_config --enable-soap --enable-mbstring=all --enable-sockets --with-pdo-mysql=/usr/local/mysql --without-pear
+make && make install
+
 #'step5: create test pages & tests'
 #'step6: deploy some web applications'
 #'app1: phpmyadmin'
