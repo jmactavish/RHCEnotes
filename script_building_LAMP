@@ -2,7 +2,7 @@
 #'it's a long story lol'
 
 #'step1: install httpd-2.4 & disable yum-installed-httpd'
-yum -y install python-devel gcc* pcre-devel subversion git wget unzip ncurses-devel cmake bison libtool* libxml2-devel
+yum -y install python-devel gcc* pcre-devel subversion git wget unzip ncurses-devel cmake bison libtool* libxml2-devel libXpm-devel
 cd && wget http://mirror.bit.edu.cn/apache//httpd/httpd-2.4.17.tar.gz
 tar -xzf httpd-2.4.17.tar.gz && rm -f httpd-2.4.17.tar.gz
 wget http://apache.fayea.com//apr/apr-1.5.2.tar.gz
@@ -87,13 +87,12 @@ mkdir /var/run/mysqld && chown mysql:mysql /var/run/mysqld
 /usr/local/mysql/bin/mysqladmin -uroot password 'passw0rd'
 
 #'step4: install php'
-sed -i '71s/$/\n\nvoid {"data};/' /usr/local/gd2/include/gd_io.h
 cd && git clone https://github.com/php/php-src.git
-cd php-src && ./configure --prefix=/usr/local/php --with-config-file-path=/usr/local/php/etc --with-zpxs2=/usr/local/apache2/bin/apxs --with-mysql=/usr/local/mysql --with-libxml-dir=/usr/local/libxmls --with-jpeg-dir=/usr/local/jpeg6/ --with-png-dir=/usr/local/libpng --with-freetype-dir=/usr/local/freetype/ --with=gd=/usr/local/gd2 --with-mcrypt=/usr/local/libmcrypt --with-mysqli=/usr/local/mysql/bin/mysql_config --enable-soap --enable-mbstring=all --enable-sockets --with-pdo-mysql=/usr/local/mysql --without-pear
+cd php-src && ./buildconf && ./configure --prefix=/usr/local/php --with-config-file-path=/usr/local/php/etc --with-apxs2=/usr/local/apache2/bin/apxs --with-mysql=/usr/local/mysql --with-libxml-dir=/usr/local/libxmls --with-jpeg-dir=/usr/local/jpeg6/ --with-png-dir=/usr/local/libpng --with-freetype-dir=/usr/local/freetype/ --with-gd=/usr/local/gd2 --with-mcrypt=/usr/local/libmcrypt --with-mysqli=/usr/local/mysql/bin/mysql_config --enable-soap --enable-mbstring=all --enable-sockets --with-pdo-mysql=/usr/local/mysql --without-pear --with-xpm-dir=/usr/lib/
 make && make install
 mkdir -p /usr/local/php/etc
 cp php.ini-production /usr/local/php/etc/php.ini
-sed -i '/AddType/s/^/AddType application/x-httpd-php .php .phps .phtml\n/' /usr/local/apache2/etc/httpd.conf
+sed -i '/AddType text/s/^/AddType application x-httpd-php .php .phps .phtml\n/' /usr/local/apache2/etc/httpd.conf
 /usr/local/apache2/bin/apachectl stop && /usr/local/apache2/bin/apachectl start
 
 #'step5: create test pages & tests'
