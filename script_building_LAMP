@@ -89,6 +89,7 @@ mkdir /var/run/mysqld && chown mysql:mysql /var/run/mysqld
 #'step4: install php'
 cd && git clone https://github.com/php/php-src.git
 cd php-src && ./buildconf && ./configure --prefix=/usr/local/php --with-config-file-path=/usr/local/php/etc --with-apxs2=/usr/local/apache2/bin/apxs --with-mysql=/usr/local/mysql --with-libxml-dir=/usr/local/libxmls --with-jpeg-dir=/usr/local/jpeg6/ --with-png-dir=/usr/local/libpng --with-freetype-dir=/usr/local/freetype/ --with-gd=/usr/local/gd2 --with-mcrypt=/usr/local/libmcrypt --with-mysqli=/usr/local/mysql/bin/mysql_config --enable-soap --enable-mbstring=all --enable-sockets --with-pdo-mysql=/usr/local/mysql --without-pear --with-xpm-dir=/usr/lib/
+#'mind the directory pathes'
 make && make install
 mkdir -p /usr/local/php/etc
 cp php.ini-production /usr/local/php/etc/php.ini
@@ -96,6 +97,34 @@ sed -i '/AddType text/s/^/AddType application x-httpd-php .php .phps .phtml\n/' 
 /usr/local/apache2/bin/apachectl stop && /usr/local/apache2/bin/apachectl start
 
 #'step5: create test pages & tests'
+echo '
+<?php
+phpinfo();
+?>
+' > /usr/localapache2/hcdocs/index.php
+echo '
+<?php
+$link=mysql_connect('localhost','root','passw0rd');
+if($link) echo "this is the mysql test page";
+mysql_close();
+?>
+' > /usr/localapache2/hcdocs/mysql.php
+
 #'step6: deploy some web applications'
 #'app1: phpmyadmin'
+cd && wget https://files.phpmyadmin.net/phpMyAdmin/4.5.2/phpMyAdmin-4.5.2-all-languages.tar.gz
+tar -xzf phpMyAdmin-4.5.2-all-languages.tar.gz && rm -f phpMyAdmin-4.5.2-all-languages.tar.gz
+cp -r phpMyAdmin-4.5.2-all-languages /usr/local/apache2/htdocs/phpmyadmin
+
 #'app2: Discuz'
+cd && wget http://download.comsenz.com/Discuz/7.2/Discuz_7.2_SC_UTF8.zip
+unzip Discuz_7.2_SC_UTF8.zip && rm -f Discuz_7.2_SC_UTF8.zip c&& cp Discuz_7.2_SC_UTF8/upload /usr/local/apache2/htdocs/bbs
+cd !$ && chown -R daemon:daemon attachments/ forumdata/ config.inc.php teplates/ uc_client/data/cache/
+/usr/local/mysql/bin/mysql -uroot -p
+#'need to grant database privilege for bbs_admin here'
+create database bbs;
+grant all on bbs.* to bbs_admin@'192.168.57.0/24' identified by 'passw0rd';
+exit
+sed -i '/short_open_tag/s/off/on/' /usr/local/php/etc/php.ini
+/usr/local/apache2/bin/apachectl stop
+/usr/local/apache2/bin/apachectl start
