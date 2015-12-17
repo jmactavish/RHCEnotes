@@ -78,7 +78,7 @@ sed -i '/socket/s@/var/lib/mysql@/tmp@' /etc/my.cnf
 sed -i '/datadir/s@/var/lib/mysql@/usr/local/mysql/data@' /etc/my.cnf
 #'disable yum-installed mysql & enable auto start'
 /etc/init.d/mysqld stop && chkconfig mysqld off
-cp /usr/local/src/mysql-5.1.55/support-files/mysql.server /etc/rc.d/init.d/mysql
+cp support-files/mysql.server /etc/rc.d/init.d/mysql
 chmod +x /etc/rc.d/init.d/mysql
 chkconfig --level 35 mysql on
 /usr/local/mysql/scripts/mysql_install_db --user=mysql --basedir=/usr/local/mysql --datadir=/usr/local/mysql/data &
@@ -97,7 +97,7 @@ cd php-src && ./buildconf && ./configure --prefix=/usr/local/php --with-config-f
 make && make install
 mkdir -p /usr/local/php/etc
 cp php.ini-production /usr/local/php/etc/php.ini
-sed -i '/AddType text/s/^/AddType application x-httpd-php .php .phps .phtml\n/' /usr/local/apache2/etc/httpd.conf
+sed -i '/AddType text/s@^@AddType application/x-httpd-php .php .phps .phtml\n@' /usr/local/apache2/etc/httpd.conf
 /usr/local/apache2/bin/apachectl start
 
 #'step5: create test pages & tests'
@@ -105,14 +105,14 @@ echo '
 <?php
 phpinfo();
 ?>
-' > /usr/localapache2/hcdocs/index.php
+' > /usr/local/apache2/htdocs/index.php
 echo '
 <?php
 $link=mysql_connect('localhost','root','passw0rd');
 if($link) echo "this is the mysql test page";
 mysql_close();
 ?>
-' > /usr/localapache2/hcdocs/mysql.php
+' > /usr/local/apache2/htdocs/mysql.php #'could not be visited'
 
 #'step6: deploy some web applications'
 #'app1: phpmyadmin'
@@ -120,15 +120,15 @@ cd && wget https://files.phpmyadmin.net/phpMyAdmin/4.5.2/phpMyAdmin-4.5.2-all-la
 tar -xzf phpMyAdmin-4.5.2-all-languages.tar.gz && rm -f phpMyAdmin-4.5.2-all-languages.tar.gz
 cp -r phpMyAdmin-4.5.2-all-languages /usr/local/apache2/htdocs/phpmyadmin
 
-#'app2: Discuz'
+#'app2: Discuz' #'could not visit!!!'
 cd && wget http://download.comsenz.com/Discuz/7.2/Discuz_7.2_SC_UTF8.zip
-unzip Discuz_7.2_SC_UTF8.zip && rm -f Discuz_7.2_SC_UTF8.zip c&& cp Discuz_7.2_SC_UTF8/upload /usr/local/apache2/htdocs/bbs
-cd !$ && chown -R daemon:daemon attachments/ forumdata/ config.inc.php teplates/ uc_client/data/cache/
+unzip Discuz_7.2_SC_UTF8.zip && rm -f Discuz_7.2_SC_UTF8.zip c&& cp -r upload /usr/local/apache2/htdocs/bbs
+cd !$ && chown -R daemon:daemon attachments/ forumdata/ config.inc.php templates/ uc_client/data/cache/
 /usr/local/mysql/bin/mysql -uroot -p
 #'need to grant database privilege for bbs_admin here'
 create database bbs;
 grant all on bbs.* to bbs_admin@'192.168.57.0/24' identified by 'passw0rd';
 exit
-sed -i '/short_open_tag/s/off/on/' /usr/local/php/etc/php.ini
+sed -i '/short_open_tag/s/Off/On/g' /usr/local/php/etc/php.ini
 /usr/local/apache2/bin/apachectl stop
 /usr/local/apache2/bin/apachectl start
