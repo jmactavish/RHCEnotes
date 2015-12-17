@@ -18,7 +18,6 @@ service httpd stop ; chkconfig httpd off
 setenforce 0
 sed -i '/SELINUX=enforcing/s/enforcing/permissive/' /etc/sysconfig/selinux
 iptables -F ; iptables -X && service iptables save
-/usr/local/apache2/bin/apachectl start
 echo '/usr/local/apache2/bin/apachectl start' >> /etc/rc.d/rc.local
 
 #'step2: get add-ons ready'
@@ -77,6 +76,11 @@ chown -R mysql /usr/local/mysql/data
 cp -f /usr/local/mysql/support-files/my-default.cnf /etc/my.cnf
 sed -i '/socket/s@/var/lib/mysql@/tmp@' /etc/my.cnf
 sed -i '/datadir/s@/var/lib/mysql@/usr/local/mysql/data@' /etc/my.cnf
+#'disable yum-installed mysql & enable auto start'
+/etc/init.d/mysqld stop && chkconfig mysqld off
+cp /usr/local/src/mysql-5.1.55/support-files/mysql.server /etc/rc.d/init.d/mysql
+chmod +x /etc/rc.d/init.d/mysql
+chkconfig --level 35 mysql on
 /usr/local/mysql/scripts/mysql_install_db --user=mysql --basedir=/usr/local/mysql --datadir=/usr/local/mysql/data &
 #'may need to press "enter" here'
 
@@ -94,7 +98,7 @@ make && make install
 mkdir -p /usr/local/php/etc
 cp php.ini-production /usr/local/php/etc/php.ini
 sed -i '/AddType text/s/^/AddType application x-httpd-php .php .phps .phtml\n/' /usr/local/apache2/etc/httpd.conf
-/usr/local/apache2/bin/apachectl stop && /usr/local/apache2/bin/apachectl start
+/usr/local/apache2/bin/apachectl start
 
 #'step5: create test pages & tests'
 echo '
