@@ -50,3 +50,4 @@ filename "pxelinux.0";
 ' >> /etc/dhcp/dhcpd.conf
 service dhcpd start && chkconfig dhcpd on
 setenforce 0
+sed -i '/SELINUX=enforcing/s/enforcing/permissive/' /etc/sysconfig/selinux

@@ -38,5 +38,6 @@ echo '
 anon_other_write_enable=YES
 ' > /etc/vsftpd/virtual_user_conf_files/user3
 setenforce 0
+sed -i '/SELINUX=enforcing/s/enforcing/permissive/' /etc/sysconfig/selinux
 service vsftpd restart
 chkconfig vsftpd on
