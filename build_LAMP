@@ -128,6 +128,7 @@ create database bbs;
 grant all on bbs.* to bbs_admin@'localhost' identified by 'passw0rd'
 exit
 sed -i '/short_open_tag/s/Off/On/g' /usr/local/php/etc/php.ini
+sed -i 's/index.html/index.html index.php/' /usr/local/apache2/etc/httpd.conf
 /usr/local/apache2/bin/apachectl stop
 /usr/local/apache2/bin/apachectl start
 #'visit http://192.168.57.42/bbs/install/index.php to install'
