@@ -1,5 +1,4 @@
-#!/bin/bash
-#'it's a long story lol'
+#'it's a long story lol, better to do this step by step since it may break in the middle'
 
 #'step1: install httpd-2.4 & disable yum-installed-httpd'
 yum -y install python-devel gcc* pcre-devel subversion git wget unzip ncurses-devel cmake bison libtool* libxml2-devel libXpm-devel
@@ -73,6 +72,7 @@ cmake -DCMAKE_INSTALL_PREFIX=/usr/local/mysql -DMYSQL_UNIX_ADDR=/tmp/mysql.sock 
 make && make install
 chown -R root /usr/local/mysql/*
 chown -R mysql /usr/local/mysql/data
+unalias cp
 cp -f /usr/local/mysql/support-files/my-default.cnf /etc/my.cnf
 sed -i '/socket/s@/var/lib/mysql@/tmp@' /etc/my.cnf
 sed -i '/datadir/s@/var/lib/mysql@/usr/local/mysql/data@' /etc/my.cnf
@@ -83,21 +83,20 @@ chmod +x /etc/rc.d/init.d/mysql
 chkconfig --level 35 mysql on
 /usr/local/mysql/scripts/mysql_install_db --user=mysql --basedir=/usr/local/mysql --datadir=/usr/local/mysql/data &
 #'may need to press "enter" here'
-
 mkdir /var/run/mysqld && chown mysql:mysql /var/run/mysqld
 /usr/local/mysql/bin/mysqld_safe --user=mysql &
 #'may need to press "enter" here'
-
 /usr/local/mysql/bin/mysqladmin -uroot password 'passw0rd'
 
 #'step4: install php'
-cd && git clone https://github.com/php/php-src.git
-cd php-src && ./buildconf && ./configure --prefix=/usr/local/php --with-config-file-path=/usr/local/php/etc --with-apxs2=/usr/local/apache2/bin/apxs --with-mysql=/usr/local/mysql --with-libxml-dir=/usr/local/libxmls --with-jpeg-dir=/usr/local/jpeg6/ --with-png-dir=/usr/local/libpng --with-freetype-dir=/usr/local/freetype/ --with-gd=/usr/local/gd2 --with-mcrypt=/usr/local/libmcrypt --with-mysqli=/usr/local/mysql/bin/mysql_config --enable-soap --enable-mbstring=all --enable-sockets --with-pdo-mysql=/usr/local/mysql --without-pear --with-xpm-dir=/usr/lib/
-#'mind the directory pathes'
+cd && wget http://cn2.php.net/get/php-5.6.16.tar.gz/from/this/mirror
+tar -xzvf mirror && rm -f mirror
+cd php-5.6.16 && ./configure --prefix=/usr/local/php --with-config-file-path=/usr/local/php/etc --with-apxs2=/usr/local/apache2/bin/apxs --with-mysql=/usr/local/mysql --with-libxml-dir=/usr/local/libxmls --with-jpeg-dir=/usr/local/jpeg6/ --with-png-dir=/usr/local/libpng --with-freetype-dir=/usr/local/freetype/ --with-gd=/usr/local/gd2 --with-mcrypt=/usr/local/libmcrypt --with-mysqli=/usr/local/mysql/bin/mysql_config --enable-soap --enable-mbstring=all --enable-sockets --with-pdo-mysql=/usr/local/mysql --without-pear
 make && make install
 mkdir -p /usr/local/php/etc
 cp php.ini-production /usr/local/php/etc/php.ini
 sed -i '/AddType text/s@^@AddType application/x-httpd-php .php .phps .phtml\n@' /usr/local/apache2/etc/httpd.conf
+/usr/local/apache2/bin/apachectl stop
 /usr/local/apache2/bin/apachectl start
 
 #'step5: create test pages & tests'
@@ -112,23 +111,23 @@ $link=mysql_connect('localhost','root','passw0rd');
 if($link) echo "this is the mysql test page";
 mysql_close();
 ?>
-' > /usr/local/apache2/htdocs/mysql.php #'could not be visited'
+' > /usr/local/apache2/htdocs/mysql.php
 
 #'step6: deploy some web applications'
 #'app1: phpmyadmin'
 cd && wget https://files.phpmyadmin.net/phpMyAdmin/4.5.2/phpMyAdmin-4.5.2-all-languages.tar.gz
 tar -xzf phpMyAdmin-4.5.2-all-languages.tar.gz && rm -f phpMyAdmin-4.5.2-all-languages.tar.gz
 cp -r phpMyAdmin-4.5.2-all-languages /usr/local/apache2/htdocs/phpmyadmin
-
 #'app2: Discuz' #'could not visit!!!'
-cd && wget http://download.comsenz.com/Discuz/7.2/Discuz_7.2_SC_UTF8.zip
-unzip Discuz_7.2_SC_UTF8.zip && rm -f Discuz_7.2_SC_UTF8.zip c&& cp -r upload /usr/local/apache2/htdocs/bbs
+cd && wget http://download.comsenz.com/Discuz/7.2/Discuz_7.2_FULL_SC_UTF8.zip
+unzip Discuz_7.2_FULL_SC_UTF8.zip && rm -f Discuz_7.2_FULL_SC_UTF8.zip && cp -r upload /usr/local/apache2/htdocs/bbs
 cd !$ && chown -R daemon:daemon attachments/ forumdata/ config.inc.php templates/ uc_client/data/cache/
 /usr/local/mysql/bin/mysql -uroot -p
 #'need to grant database privilege for bbs_admin here'
 create database bbs;
-grant all on bbs.* to bbs_admin@'192.168.57.0/24' identified by 'passw0rd';
+grant all on bbs.* to bbs_admin@'localhost' identified by 'passw0rd'
 exit
 sed -i '/short_open_tag/s/Off/On/g' /usr/local/php/etc/php.ini
 /usr/local/apache2/bin/apachectl stop
 /usr/local/apache2/bin/apachectl start
+#'visit http://192.168.57.42/bbs/install/index.php to install'
