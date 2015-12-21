@@ -1,0 +1,19 @@
+yum -y install gcc* pcre-devel zlib-devel wget
+service mysqld stop&& chkconfig mysqld off
+
+#'step1: install nginx'
+cd && wget http://nginx.org/download/nginx-1.8.0.tar.gz
+useradd -M -s /sbin/nologin nginx
+tar -xzf nginx-1.8.0.tar.gz && cd nginx-1.8.0
+./configure --prefix=/usr/local/nginx --user=nginx --group=nginx --with-http_stub_status_module
+make && make install
+/usr/local/nginx/sbin/nginx
+echo '
+#!/bin/bash
+# chkconfig: 2345 99 28
+# description: Nginx web server
+NGINX=/usr/local/nginx/sbin/nginx
+PID_FILE=/usr/local/nginx/logs/nginx.pid
+case $1 in
+
+' > /etc/init.d/nginx && chmod +x /etc/init.d/nginx
