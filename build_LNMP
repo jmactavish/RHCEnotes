@@ -15,5 +15,25 @@ echo '
 NGINX=/usr/local/nginx/sbin/nginx
 PID_FILE=/usr/local/nginx/logs/nginx.pid
 case $1 in
-
+start)
+$NGINX
+echo "NGINX is starting"
+;;
+stop)
+kill -s QUIT $(cat $PID_FILE)
+echo "NGINX is stopping"
+;;
+restart)
+$0 stop &> /dev/null
+$0 start &> /dev/null
+echo "NGINX is restarting"
+;;
+reload)
+kill -s HUP $(cat $PID_FILE)
+echo "NGINX is reloading"
+;;
+*)
+echo "$0 Usage: start | stop | restart | reload"
+esca
 ' > /etc/init.d/nginx && chmod +x /etc/init.d/nginx
+
