@@ -1,5 +1,6 @@
-yum -y install gcc* pcre-devel zlib-devel wget
+yum -y install gcc* pcre-devel zlib-devel neurses-devel libxml2-devel libpng-devel wget
 service mysqld stop&& chkconfig mysqld off
+/etc/init.d/mysqld stop && chkconfig mysqld off
 
 #'step1: install nginx'
 cd && wget http://nginx.org/download/nginx-1.8.0.tar.gz
@@ -37,3 +38,30 @@ echo "$0 Usage: start | stop | restart | reload"
 esca
 ' > /etc/init.d/nginx && chmod +x /etc/init.d/nginx
 
+#'step2: install mysql'
+cd && wget https://dev.mysql.com/get/Downloads/MySQL-5.6/mysql-5.6.27.tar.gz
+useradd -M -s /sbin/nologin mysql
+tar -xzf mysql-5.6.27.tar.gz && rm -f mysql-5.6.27.tar.gz
+cd mysql-5.6.27
+cmake -DCMAKE_INSTALL_PREFIX=/usr/local/mysql -DMYSQL_UNIX_ADDR=/tmp/mysql.sock -DEXTRA_CHARSETS=all -DDEFAULT_CHARSET=utf8 -DDEFAULT_COLLATION=utf8_general_ci -DWITH_MYISAM_STORAGE_ENGINE=1 -DWITH_INNOBASE_STORAGE_ENGINE=1 -DWITH_MEMORY_STORAGE_ENGINE=1 -DWITH_READLINE=1 -DENABLED_LOCAL_INFILE=1 -DMYSQL_USER=mysql -DMYSQL_TCP_PORT=3306
+make && make install
+chown -R root.mysql /usr/local/mysql/*
+chown -R mysql /usr/local/mysql/data
+unalias cp
+cp -f /usr/local/mysql/support-files/my-default.cnf /etc/my.cnf
+sed -i '/socket/s@/var/lib/mysql@/tmp@' /etc/my.cnf
+sed -i '/datadir/s@/var/lib/mysql@/usr/local/mysql/data@' /etc/my.cnf
+cp support-files/mysql.server /etc/rc.d/init.d/mysql
+chmod +x /etc/rc.d/init.d/mysql
+chkconfig --level 35 mysql on
+/usr/local/mysql/scripts/mysql_install_db --user=mysql --basedir=/usr/local/mysql --datadir=/usr/local/mysql/data &
+#'may need to press "enter" here'
+mkdir /var/run/mysqld && chown mysql:mysql /var/run/mysqld
+service mysql start
+/usr/local/mysql/bin/mysqladmin -uroot password 'passw0rd'
+
+#'step3: install php'
+cd && wget http://cn2.php.net/get/php-5.6.16.tar.gz/from/this/mirror
+tar -xzvf mirror && rm -f mirror
+cd php-5.6.16 && ./configure --prefix=/usr/local/php --with-gd --with-zlib --with-mysql=/usr/local/mysql --with-config-file-path=/usr/local/php/ --enable-mbstring --enable-fpm 
+make && make install
