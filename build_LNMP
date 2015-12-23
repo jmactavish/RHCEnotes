@@ -9,34 +9,6 @@ tar -xzf nginx-1.8.0.tar.gz && cd nginx-1.8.0
 ./configure --prefix=/usr/local/nginx --user=nginx --group=nginx --with-http_stub_status_module
 make && make install
 /usr/local/nginx/sbin/nginx
-echo '
-#!/bin/bash
-# chkconfig: 2345 99 28
-# description: Nginx web server
-NGINX=/usr/local/nginx/sbin/nginx
-PID_FILE=/usr/local/nginx/logs/nginx.pid
-case $1 in
-start)
-$NGINX
-echo "NGINX is starting"
-;;
-stop)
-kill -s QUIT $(cat $PID_FILE)
-echo "NGINX is stopping"
-;;
-restart)
-$0 stop &> /dev/null
-$0 start &> /dev/null
-echo "NGINX is restarting"
-;;
-reload)
-kill -s HUP $(cat $PID_FILE)
-echo "NGINX is reloading"
-;;
-*)
-echo "$0 Usage: start | stop | restart | reload"
-esca
-' > /etc/init.d/nginx && chmod +x /etc/init.d/nginx
 
 #'step2: install mysql'
 cd && wget https://dev.mysql.com/get/Downloads/MySQL-5.6/mysql-5.6.27.tar.gz
@@ -65,3 +37,65 @@ cd && wget http://cn2.php.net/get/php-5.6.16.tar.gz/from/this/mirror
 tar -xzvf mirror && rm -f mirror
 cd php-5.6.16 && ./configure --prefix=/usr/local/php --with-gd --with-zlib --with-mysql=/usr/local/mysql --with-config-file-path=/usr/local/php/ --enable-mbstring --enable-fpm 
 make && make install
+cp php.ini-development /usr/local/php/php.ini
+cp /usr/local/php/etc/php-fpm.conf.default /usr/local/php/etc/php-fpm.conf
+sed -i '25s/;//' /usr/local/php/etc/php-fpm.conf
+sed -i '/user = nobody/s/nobody/nginx/' /usr/local/php/etc/php-fpm.conf
+sed -i '/group = nobody/s/nobody/nginx/' /usr/local/php/etc/php-fpm.conf
+sed -i '/pm.start_servers/s/;//' /usr/local/php/etc/php-fpm.conf
+sed -i '/pm.min_spare_servers/s/;//' /usr/local/php/etc/php-fpm.conf
+sed -i '/pm.max_spare_servers/s/;//' /usr/local/php/etc/php-fpm.conf
+echo '
+location -\.php$ {
+root html;
+fastcgi_pass 127.0.0.1:9000;
+fastcgi_index index.php;
+include fastcgi.conf;
+}
+' >
+
+#'step4: install zend_guard_loader'
+cd && wget http://downloads.zend.com/guard/7.0.0/zend-loader-php5.6-linux-i386.tar.gz
+#'there are other options for x64 platform and php5.5: http://www.zend.com/en/products/loader/downloads#Linux'
+tar -zxf zend-loader-php5.6-linux-i386.tar.gz && rm -f zend-loader-php5.6-linux-i386.tar.gz
+cd zend-loader-php5.6-linux-i386 && cp ZendGuardLoader.so /usr/local/php/lib/php
+echo '
+zend_extension=/usr/local/php/lib/php/ZendGuardLoader.so
+zend_loader_enable=1
+' >> /usr/local/php/php.ini
+/usr/local/php/sbin/php-fpm
+
+#'create an initialization script'
+echo '
+#!/bin/bash
+# chkconfig: 2345 99 28
+# description: Nginx web server
+NGINX=/usr/local/nginx/sbin/nginx
+PHP=/usr/local/php/sbin/php-fpm
+PID_FILE=/usr/local/nginx/logs/nginx.pid
+PHP_PID_FILE=/usr/local/php/var/run/php-fpm.pid
+case $1 in
+start)
+$NGINX
+$PHP
+echo "NGINX & PHP are starting"
+;;
+stop)
+kill -s QUIT $(cat $PID_FILE)
+kill -s QUIT $(cat $PHP_PID_FILE)
+echo "NGINX & PHP are stopping"
+;;
+restart)
+$0 stop &> /dev/null
+$0 start &> /dev/null
+echo "NGINX & PHP are restarting"
+;;
+reload)
+kill -s HUP $(cat $PID_FILE)
+kill -s HUP $(cat $PHP_PID_FILE)
+echo "NGINX & PHP are reloading"
+;;
+*)
+echo "$0 Usage: start | stop | restart | reload"
+esca
+' > /etc/init.d/nginx && chmod +x /etc/init.d/nginx
