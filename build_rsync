@@ -1,0 +1,37 @@
+#'this is a dual-directions sync guidance, need to be configured on both servers'
+#'for example, here use 192.168.57.11 and 192.168.56.11 as instances'
+yum -y install gcc* wget
+
+#'step1: need inotify-tools to monitor'
+cd && wget http://jaist.dl.sourceforge.net/project/inotify-tools/inotify-tools/3.13/inotify-tools-3.13.tar.gz
+tar -xzf inotify-tools-3.13.tar.gz && rm -f inotify-tools-3.13.tar.gz
+cd inotify-tools-3.13 && ./cofigure
+make && make install
+echo '
+fs.inotifywait.max_queued_events = 16384
+fs.inotifywait.max_user_instances = 1024
+fs.inotifywait.max_user_watches = 1048576
+' >> /etc/sysctl.conf
+sysctl -p
+
+#'step2: unison is a File Synchronizer'
+#'object-caml is a language that unison uses'
+cd && wget http://caml.inria.fr/pub/distrib/ocaml-4.02/ocaml-4.02.3.tar.gz
+tar -xzf ocaml-4.02.3.tar.gz && rm -f ocaml-4.02.3.tar.gz
+cd ocaml-4.02.3 && ./configure
+make world opt && make install
+cd && wget http://www.seas.upenn.edu/~bcpierce/unison//download/releases/stable/unison-2.48.3.tar.gz
+tar -xzf unison-2.48.3.tar.gz && rm -f unison-2.48.3.tar.gz
+cd unison-2.48.3 && make UISTYLE=text THREADS=true STATIC=true
+cp unison /usr/local/bin
+
+#'step3: need a script using inotify to monitor then use unison to synchronise'
+echo '
+#!/bin/bash
+/usr/local/bin/inotifywait -mrq -e create.delete /var/named | while read DIRECTORY EVENT FILE
+do
+/usr/local/bin/unison -batch /var/named ssh://192.168.56.11/var/named
+#'just point to the other server's address, (56.11 point to 57.11, on 57.11, point to 56.11)'
+done
+' > /root/unison.sh
+chmod +x /root/unison.sh
