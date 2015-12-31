@@ -1,4 +1,4 @@
-#/bin/bash
+#!/bin/bash
 #'it's a long story lol, better to do this step by step since it may break in the middle'
 
 #'step1: install httpd-2.4 & disable yum-installed-httpd'
