@@ -1,3 +1,4 @@
+#/bin/bash
 #'it's a long story lol, better to do this step by step since it may break in the middle'
 
 #'step1: install httpd-2.4 & disable yum-installed-httpd'
@@ -91,7 +92,7 @@ mkdir /var/run/mysqld && chown mysql:mysql /var/run/mysqld
 #'step4: install php'
 cd && wget http://cn2.php.net/get/php-5.6.16.tar.gz/from/this/mirror
 tar -xzvf mirror && rm -f mirror
-cd php-5.6.16 && ./configure --prefix=/usr/local/php --with-config-file-path=/usr/local/php/etc --with-apxs2=/usr/local/apache2/bin/apxs --with-mysql=/usr/local/mysql --with-libxml-dir=/usr/local/libxmls --with-jpeg-dir=/usr/local/jpeg6/ --with-png-dir=/usr/local/libpng --with-freetype-dir=/usr/local/freetype/ --with-gd=/usr/local/gd2 --with-mcrypt=/usr/local/libmcrypt --with-mysqli=/usr/local/mysql/bin/mysql_config --enable-soap --enable-mbstring=all --enable-sockets --with-pdo-mysql=/usr/local/mysql --without-pear
+cd php-5.6.16 && ./configure --prefix=/usr/local/php --with-config-file-path=/usr/local/php/etc --with-apxs2=/usr/local/apache2/bin/apxs --with-libxml-dir=/usr/local/libxmls --with-jpeg-dir=/usr/local/jpeg6/ --with-png-dir=/usr/local/libpng --with-freetype-dir=/usr/local/freetype/ --with-gd=/usr/local/gd2 --with-mcrypt=/usr/local/libmcrypt --with-mysqli=/usr/local/mysql/bin/mysql_config --enable-soap --enable-mbstring=all --enable-sockets --with-pdo-mysql=/usr/local/mysql --without-pear
 make && make install
 mkdir -p /usr/local/php/etc
 cp php.ini-production /usr/local/php/etc/php.ini
