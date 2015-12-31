@@ -119,7 +119,7 @@ mysql_close();
 cd && wget https://files.phpmyadmin.net/phpMyAdmin/4.5.2/phpMyAdmin-4.5.2-all-languages.tar.gz
 tar -xzf phpMyAdmin-4.5.2-all-languages.tar.gz && rm -f phpMyAdmin-4.5.2-all-languages.tar.gz
 cp -r phpMyAdmin-4.5.2-all-languages /usr/local/apache2/htdocs/phpmyadmin
-#'app2: Discuz' #'could not visit!!!'
+#'app2: Discuz'
 cd && wget http://download.comsenz.com/Discuz/7.2/Discuz_7.2_FULL_SC_UTF8.zip
 unzip Discuz_7.2_FULL_SC_UTF8.zip && rm -f Discuz_7.2_FULL_SC_UTF8.zip && cp -r upload /usr/local/apache2/htdocs/bbs
 cd !$ && chown -R daemon:daemon attachments/ forumdata/ config.inc.php templates/ uc_client/data/cache/
