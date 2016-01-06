@@ -1,0 +1,71 @@
+#!/bin/bash
+#'5 ways to monitor: plugins; ssh plugin; nrpe(unix); snmp; nsca(windows/unix)'
+#'deploy on 192.168.57.71'
+
+#'step 1: need an LAMP environment'
+sed -i '/SELINUX=enforcing/s/enforcing/permissive/' /etc/sysconfig/selinux
+setenforce 0
+yum -y install httpd mysql mysql-server mysql-devel php php-mysql gcc* glibc glibc-common *gd* wget openssl openssl-devel
+groupadd nagcmd && useradd -G nagcmd nagios && usermod -G nagcmd apache
+chkconfig {httpd,mysqld} on
+
+#'step2: download & install nagios'
+cd && wget https://assets.nagios.com/downloads/nagioscore/releases/nagios-4.1.1.tar.gz
+tar -xzf nagios-4.1.1.tar.gz && rm -f nagios-4.1.1.tar.gz
+cd nagios-4.1.1
+./configure --with-command-group=nagcmd --enable-event-broker
+make all && make install && make install-init && make install-commandmode && make install-config && make install-webconf
+sed -i '/nagios@localhost/s/nagios@localhost/rljhs@gmail.com/' /usr/local/nagios/etc/objects/contacts.cfg
+htpasswd -b /usr/local/nagios/etc/htpasswd.users nagiosadmin passw0rd
+
+#'step 3: install plugin manager'
+cd && wget http://nagios-plugins.org/download/nagios-plugins-2.1.1.tar.gz
+tar -xzf nagios-plugins-2.1.1.tar.gz && rm -f nagios-plugins-2.1.1.tar.gz
+cd nagios-plugins-2.1.1
+./configure --with-nagios-user=nagios --with-nagios-group=nagios --with-mysql --enable-perl-modules
+make && make install
+chkconfig --add nagios && chkconfig nagios on
+service {httpd,mysqld,nagios} start
+#'visit 192.168.57.71/nagios to configure'
+
+#'step 4: install nrpe'
+cd && wget http://jaist.dl.sourceforge.net/project/nagios/nrpe-2.x/nrpe-2.15/nrpe-2.15.tar.gz
+tar -zxf nrpe-2.15.tar.gz && rm -f nrpe-2.15.tar.gz
+cd nrpe-2.15
+./configure --enable-ssl --with-ssl-lib=/usr/lib
+make && make all && make install && make install-plugin
+sed -i '/check_nt/s/nt/nrpe/g' /usr/local/nagios/etc/objects/commands.cfg
+sed -i '/check_nrpe/s/check_nt -H $HOSTADDRESS$ -p 12489 -v $ARG1$ $ARG2$/check_nrpe -H $HOSTADDRESS$ -c $ARG1$/g' /usr/local/nagios/etc/objects/commands.cfg
+echo '
+define host{
+use linux_nrpe_hosts
+host_name ftp31.57.rljhs.net
+address 192.168.57.31
+}
+define_service{
+use generic-service
+host_name ftp31.57.rljhs.net
+service_description check-disk
+check_command check_nrpe!check_disk
+}
+define_service{
+use generic-service
+host_name ftp31.57.rljhs.net
+service_description check-users
+check_command check_nrpe!check_users
+}
+' > /usr/local/nagios/etc/objects/linux_nrpe_hosts
+echo '
+cfg_file=/usr/local/nagios/etc/objects/linux_nrpe_hosts
+' >> /usr/local/nagios/etc/nagios.cfg
+
+#'step 5: configure clients so that could be checked'
+#'client 1: windows host:'
+#'install a NSClient++ on a windows host, also need to enable these lines on nagios:'
+sed -i '/IP address of the host/s//192.168.57.201/' /usr/local/nagios/objects/windows.cfg  #'missed something from the video'
+sed -i '/\objects/windows.cfg/s/#//' /usr/local/nagios/etc/nagios.cfg
+#'client 2: linux(nrpe)'
+#'check nrpe note to configure clients'
+
+#'step 6'
+service nagios start

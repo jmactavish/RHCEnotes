@@ -1,0 +1,21 @@
+#!/bin/bash
+yum -y install gcc* wget openssl openssl-devel
+useradd nagios
+
+#'step1: install nagios_plugin'
+cd && wget http://nagios-plugins.org/download/nagios-plugins-2.1.1.tar.gz
+tar -xzf nagios-plugins-2.1.1.tar.gz && rm -f nagios-plugins-2.1.1.tar.gz
+cd nagios-plugins-2.1.1
+./configure --with-nagios-user=nagios --with-nagios-group=nagios
+make all && make install
+
+#'step2: install nrpe'
+cd && wget http://jaist.dl.sourceforge.net/project/nagios/nrpe-2.x/nrpe-2.15/nrpe-2.15.tar.gz
+tar -zxf nrpe-2.15.tar.gz && rm -f nrpe-2.15.tar.gz
+cd nrpe-2.15
+./configure --enable-ssl --with-ssl-lib=/usr/lib
+make && make all && make install && make install-plugin && make install-daemon && make install-daemon-config
+sed -i '/allowed hosts/s/$/,192.168.57.71/' /usr/local/nagios/etc/nrpe.cfg
+
+#'step3: drop into backend & enable auto start'
+/usr/local/nagios/bin/nrpe -c /usr/local/nagios/etc/nrpe.cfg -d && echo '/usr/local/nagios/bin/nrpe -c /usr/local/nagios/etc/nrpe.cfg -d' >> /etc/rc.d/rc.local
