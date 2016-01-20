@@ -1,0 +1,47 @@
+#!/bin/bash
+
+#'install apache2.4 firstly'
+
+yum -y install gcc* wget
+cd && wget http://mirror.bit.edu.cn/apache//httpd/httpd-2.4.17.tar.gz
+tar -xzf httpd-2.4.17.tar.gz && rm -f httpd-2.4.17.tar.gz
+wget http://apache.fayea.com//apr/apr-1.5.2.tar.gz
+tar -xzf apr-1.5.2.tar.gz && rm -f apr-1.5.2.tar.gz
+wget http://apache.fayea.com//apr/apr-util-1.5.4.tar.gz
+tar -xzf apr-util-1.5.4.tar.gz && rm -f apr-util-1.5.4.tar.gz
+cp -r apr-1.5.2/ httpd-2.4.17/srclib/apr
+cp -r apr-util-1.5.4/ httpd-2.4.17/srclib/apr-util
+cd httpd-2.4.17
+./configure --prefix=/usr/local/apache2 --sysconfdir=/usr/local/apache2/etc --with-included-apr --enable-so --enable-deflate=shared --enable-expires=shared --enable-rewrite=shared
+make && make install
+service httpd stop ; chkconfig httpd off
+setenforce 0
+sed -i '/SELINUX=enforcing/s/enforcing/permissive/' /etc/sysconfig/selinux
+iptables -F ; iptables -X && service iptables save
+echo '/usr/local/apache2/bin/apachectl start' >> /etc/rc.d/rc.local
+
+#'some usages of apache2.4 are shown below:'
+
+#'usage1: user authentication'
+
+#'step1: edit config file'
+sed -i '/AllowOverride/s/None/all/' /usr/local/apache2/etc/httpd.conf
+
+#'step2: set access config file'
+[ !-f /usr/local/apache2/htdocs/.htaccess ]  && echo '
+authname "input your username and account"
+authtype basci
+authuserfile /usr/local/apache2/htdocs/user_password
+require valid-user
+' > /usr/local/apache2/htdocs/.htaccess || echo '
+.htaccess file exists!'
+
+#'step3: generate username & password'
+htpasswd -b /usr/local/apache2/htdocs/user_password root passw0rd
+
+#'step4: remember to bounce apache!'
+/usr/local/apache2/bin/apachectl stop && /usr/local/apache2/bin/apachectl start
+
+#'usage2: address authentication'
+
+
