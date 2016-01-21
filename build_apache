@@ -26,13 +26,13 @@ echo '/usr/local/apache2/bin/apachectl start' >> /etc/rc.d/rc.local
 
 #'usage1: user authentication'
 
-#'step1: enable AllowOverride'
+#'step1: enable AllowOverride (which means enable .htaccess file)'
 sed -i '/AllowOverride/s/None/all/' /usr/local/apache2/etc/httpd.conf
 
 #'step2: set access config file'
 [ ! -f /usr/local/apache2/htdocs/.htaccess ]  && echo '
 authname "input your username and account"
-authtype basci
+authtype basic
 authuserfile /usr/local/apache2/htdocs/user_password
 require valid-user
 ' > /usr/local/apache2/htdocs/.htaccess || echo '
@@ -79,6 +79,33 @@ ServerName xx.com
 #'usage4: directory alias'
 
 sed -i '/ServerName oo.com/s@$@\nalias "test" "/usr/local/apache2/docs/oo.com/dev/test"@' /usr/local/apache2/etc/httpd.conf
+/usr/local/apache2/bin/apachectl stop && /usr/local/apache2/bin/apachectl start
+
+############################################
+
+#'usage5: rewrite'
+
+#'step1: enable rewrite module'
+sed -i '/rewrite_module/s/#//p' /usr/local/apache2/etc/httpd.conf
+
+#'step2: enable .htaccess file by "allowoverride all"'
+echo '
+<Directory "/usr/local/apache2/docs/xx.com">
+options indexes followsymlinks
+allowoverride all
+require all granted
+</Directory>
+' >> /usr/local/apache2/extra/httpd-vhosts.conf
+
+#'step3: set rewrite rules in .htaccess file'
+[ ! -f /usr/local/apache2/docs/xx.com/.htaccess ]  && echo '
+rewriteengine on
+rewritecond %{HTTP_HOST} xx.com
+rewrite .* www.oo.com
+' > /usr/local/apache2/docs/xx.com/.htaccess || echo '
+.htaccess file of xx.com already exists!'
+
+#'step4: reload configrations'
 /usr/local/apache2/bin/apachectl stop && /usr/local/apache2/bin/apachectl start
 
 ############################################
