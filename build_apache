@@ -22,13 +22,15 @@ echo '/usr/local/apache2/bin/apachectl start' >> /etc/rc.d/rc.local
 
 #'some usages of apache2.4 are shown below:'
 
+############################################
+
 #'usage1: user authentication'
 
-#'step1: edit config file'
+#'step1: enable AllowOverride'
 sed -i '/AllowOverride/s/None/all/' /usr/local/apache2/etc/httpd.conf
 
 #'step2: set access config file'
-[ !-f /usr/local/apache2/htdocs/.htaccess ]  && echo '
+[ ! -f /usr/local/apache2/htdocs/.htaccess ]  && echo '
 authname "input your username and account"
 authtype basci
 authuserfile /usr/local/apache2/htdocs/user_password
@@ -42,6 +44,41 @@ htpasswd -b /usr/local/apache2/htdocs/user_password root passw0rd
 #'step4: remember to bounce apache!'
 /usr/local/apache2/bin/apachectl stop && /usr/local/apache2/bin/apachectl start
 
-#'usage2: address authentication'
+############################################
 
+#'usage2: address authentication (only 192.168.57.0/24 allowed), this the rule of apache2.4, not 2.2'
 
+sed -i '/Require all granted/s@$@\n<requireall>\nrequire all granted\nrequire ip 192.168.57.0/24\n</requireall>\n@' /usr/local/apache2/etc/httpd.conf
+sed -i '/Require all granted/d' /usr/local/apache2/etc/httpd.conf
+/usr/local/apache2/bin/apachectl stop && /usr/local/apache2/bin/apachectl start
+
+############################################
+
+#'usage3: virtual hosts (diffed by addresses) on apache2.4'
+
+sed -i '/httpd-vhosts.conf/s/#//' /usr/local/apache2/etc/httpd.conf
+
+mv /usr/local/apache2/extra/httpd-vhosts.conf /usr/local/apache2/extra/httpd-vhosts.conf.bak && echo '
+
+<VirtualHost *:80>
+DocumentRoot "/usr/local/apache2//docs/oo.com"
+ServerName oo.com
+</VirtualHost>
+
+<VirtualHost *:80>
+DocumentRoot "/usr/local/apache2//docs/xx.com"
+ServerName xx.com
+</VirtualHost>
+
+' > /usr/local/apache2/extra/httpd-vhosts.conf
+
+/usr/local/apache2/bin/apachectl stop && /usr/local/apache2/bin/apachectl start
+
+############################################
+
+#'usage4: directory alias'
+
+sed -i '/ServerName oo.com/s@$@\nalias "test" "/usr/local/apache2/docs/oo.com/dev/test"@' /usr/local/apache2/etc/httpd.conf
+/usr/local/apache2/bin/apachectl stop && /usr/local/apache2/bin/apachectl start
+
+############################################
