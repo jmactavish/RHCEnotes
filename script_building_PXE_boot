@@ -16,21 +16,7 @@ yum -y install tftp tftp-server
 mv /etc/xinetd.d/tftp /etc/xinetd.d/tftp.bak
 #'sometimes need to enable tftpd by editing config file'
 #'disable the "disable" line by changing parameter to "no"'
-echo '
-service tftp
-{
-        socket_type             = dgram
-        protocol                = udp
-        wait                    = yes
-        user                    = root
-        server                  = /usr/sbin/in.tftpd
-        server_args             = -s /var/lib/tftpboot -c
-        disable                 = no
-        per_source              = 11
-        cps                     = 100 2
-        flags                   = IPv4
-}
-' > /etc/xinetd.d/tftp
+sed -i "/disable/s/yes/no/" /etc/xinetd.d/tftp
 service xinetd start && chkconfig tftp on
 mkdir -p /var/lib/tftpboot/pxelinux.cfg
 yum -y install syslinux
