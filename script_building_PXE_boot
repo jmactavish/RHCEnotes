@@ -13,9 +13,6 @@ yum -y install vsftpd && chkconfig vsftpd on && service vsftpd start
 
 #'step 2: tftp required'
 yum -y install tftp tftp-server
-mv /etc/xinetd.d/tftp /etc/xinetd.d/tftp.bak
-#'sometimes need to enable tftpd by editing config file'
-#'disable the "disable" line by changing parameter to "no"'
 sed -i "/disable/s/yes/no/" /etc/xinetd.d/tftp
 service xinetd start && chkconfig tftp on
 mkdir -p /var/lib/tftpboot/pxelinux.cfg
