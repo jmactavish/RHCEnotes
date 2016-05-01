@@ -3,15 +3,15 @@
 
 #'step1: install httpd-2.4 & disable yum-installed-httpd'
 yum -y install python-devel gcc* pcre-devel subversion git wget unzip ncurses-devel cmake bison libtool* libxml2-devel libXpm-devel
-cd && wget http://mirror.bit.edu.cn/apache//httpd/httpd-2.4.17.tar.gz
-tar -xzf httpd-2.4.17.tar.gz && rm -f httpd-2.4.17.tar.gz
+cd && wget http://mirror.bit.edu.cn/apache/httpd/httpd-2.4.20.tar.gz
+tar -xzf httpd-2.4.20.tar.gz && rm -f httpd-2.4.20.tar.gz
 wget http://apache.fayea.com//apr/apr-1.5.2.tar.gz
 tar -xzf apr-1.5.2.tar.gz && rm -f apr-1.5.2.tar.gz
 wget http://apache.fayea.com//apr/apr-util-1.5.4.tar.gz
 tar -xzf apr-util-1.5.4.tar.gz && rm -f apr-util-1.5.4.tar.gz
-cp -r apr-1.5.2/ httpd-2.4.17/srclib/apr
-cp -r apr-util-1.5.4/ httpd-2.4.17/srclib/apr-util
-cd httpd-2.4.17
+cp -r apr-1.5.2/ httpd-2.4.20/srclib/apr
+cp -r apr-util-1.5.4/ httpd-2.4.20/srclib/apr-util
+cd httpd-2.4.20
 ./configure --prefix=/usr/local/apache2 --sysconfdir=/usr/local/apache2/etc --with-included-apr --enable-so --enable-deflate=shared --enable-expires=shared --enable-rewrite=shared
 make && make install
 service httpd stop ; chkconfig httpd off
