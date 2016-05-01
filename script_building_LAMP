@@ -22,9 +22,9 @@ echo '/usr/local/apache2/bin/apachectl start' >> /etc/rc.d/rc.local
 
 #'step2: get add-ons ready'
 #'addon1: libpng' 
-cd && wget sourceforge.net/projects/libpng/files/libpng16/1.6.19/libpng-1.6.19.tar.gz
-tar -xzvf libpng-1.6.19.tar.gz && rm -f libpng-1.6.19.tar.gz
-cd libpng-1.6.19 && ./configure --prefix=/usr/local/libpng && make && make install
+cd && wget sourceforge.net/projects/libpng/files/libpng16/1.6.21/libpng-1.6.21.tar.gz
+tar -xzvf libpng-1.6.21.tar.gz && rm -f libpng-1.6.21.tar.gz
+cd libpng-1.6.21 && ./configure --prefix=/usr/local/libpng && make && make install
 #'addon2: jpeg6'
 cd && wget http://www.ijg.org/files/jpegsrc.v6b.tar.gz 
 mkdir -p /usr/local/jpeg6/{bin,lib,include,/man/man1}
@@ -122,12 +122,12 @@ cp -r phpMyAdmin-4.5.2-all-languages /usr/local/apache2/htdocs/phpmyadmin
 #'app2: Discuz'
 cd && wget http://download.comsenz.com/Discuz/7.2/Discuz_7.2_FULL_SC_UTF8.zip
 unzip Discuz_7.2_FULL_SC_UTF8.zip && rm -f Discuz_7.2_FULL_SC_UTF8.zip && cp -r upload /usr/local/apache2/htdocs/bbs
-cd !$ && chown -R daemon:daemon attachments/ forumdata/ config.inc.php templates/ uc_client/data/cache/
+cd /usr/local/apache2/htdocs/bbs && chown -R daemon:daemon attachments/ forumdata/ config.inc.php templates/ uc_client/data/cache/
 /usr/local/mysql/bin/mysql -uroot -p
 #'need to grant database privilege for bbs_admin here'
-create database bbs;
-grant all on bbs.* to bbs_admin@'localhost' identified by 'passw0rd'
-exit
+#create database bbs;
+#grant all on bbs.* to bbs_admin@'localhost' identified by 'passw0rd';
+#exit
 sed -i '/short_open_tag/s/Off/On/g' /usr/local/php/etc/php.ini
 sed -i 's/index.html/index.html index.php/' /usr/local/apache2/etc/httpd.conf
 /usr/local/apache2/bin/apachectl stop
