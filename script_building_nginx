@@ -9,6 +9,7 @@ make && make install
 /usr/local/nginx/sbin/nginx
 
 #'step2: disable iptables & selinux'
+setenforce 0
 sed -i '/SELINUX=enforcing/s/enforcing/permissive/' /etc/sysconfig/selinux
 iptables -F ; iptables -X && service iptables save
 
