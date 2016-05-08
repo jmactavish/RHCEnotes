@@ -6,7 +6,6 @@ useradd -M -s /sbin/nologin nginx
 tar -xzf nginx-1.8.0.tar.gz && cd nginx-1.8.0
 ./configure --prefix=/usr/local/nginx --user=nginx --group=nginx --with-http_stub_status_module
 make && make install
-/usr/local/nginx/sbin/nginx
 
 #'step2: disable iptables & selinux'
 setenforce 0
@@ -44,3 +43,5 @@ echo "$0 Usage: start | stop | restart | reload"
 esac
 ' > /etc/init.d/nginx && chmod +x /etc/init.d/nginx
 
+#'step4: start & chkconfig'
+service nginx start && chkconfig nginx on
