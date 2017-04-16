@@ -1,0 +1,4 @@
+yum -y install ntp
+sed -i '/3.centos.pool.ntp.org/s/$/\n#server 192.168.57.51\nrestrict 192.168.57.0 mask 255.255.255.0 nomodify notrap\nserver 127.127.1.0\nfudge 127.127.1.0 stratum 10/' /etc/ntp.conf
+sed -i '/centos.pool.ntp.org/s/^/#/g' /etc/ntp.conf
+service ntpd start && ntpq -p && ntpstat && chkconfig ntpd on

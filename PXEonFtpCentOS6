@@ -1,0 +1,35 @@
+#'step 1: get vsftpd source ready'
+rm -rf /etc/yum.repos.d/*
+echo '
+[ftp]
+name=DvD
+baseurl=file:///var/ftp/pub/DvDresource
+gpgcheck=0
+' > /etc/yum.repos.d/DvD.repo
+mkdir -p /var/ftp/pub/DvDresource
+echo '/dev/cdrom /var/ftp/pub/DvDresource iso9660 ro 0 0' >> /etc/fstab && mount -a
+yum -y install vsftpd && chkconfig vsftpd on && service vsftpd start
+
+#'step 2: tftp required'
+yum -y install tftp tftp-server
+sed -i "/disable/s/yes/no/" /etc/xinetd.d/tftp
+service xinetd start && chkconfig tftp on
+mkdir -p /var/lib/tftpboot/pxelinux.cfg
+yum -y install syslinux
+cp -p /usr/share/syslinux/pxelinux.0 /var/lib/tftpboot
+cp /var/ftp/pub/DvDresource/isolinux/isolinux.cfg /var/lib/tftpboot/pxelinux.cfg/default
+chmod 644 /var/lib/tftpboot/pxelinux.cfg/default
+cp -rp /var/ftp/pub/DvDresource/isolinux/* /var/lib/tftpboot
+
+#'step 3: enable PXE boot on the DHCP sever'
+yum -y install dhcp
+echo '
+subnet 192.168.57.0 netmask 255.255.255.0 {
+range 192.168.57.191 192.168.57.199;
+next-server 192.168.57.21;
+filename "pxelinux.0";
+}
+' >> /etc/dhcp/dhcpd.conf
+service dhcpd start && chkconfig dhcpd on
+setenforce 0
+sed -i '/SELINUX=enforcing/s/enforcing/permissive/' /etc/sysconfig/selinux
