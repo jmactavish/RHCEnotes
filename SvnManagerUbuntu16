@@ -1,0 +1,40 @@
+apt-get install subversion apache2 libapache2-mod-svn libapache2-mod-php php php-pear php-mbstring php-mysql
+
+pear install VersionControl_SVN-0.5.1
+
+wget http://prdownloads.sourceforge.net/svnmanager/svnmanager-1.10.tar.gz
+tar -xzvf svnmanager-1.10.tar.gz
+cp -r svnmanager-1.10 /var/www/html/
+echo '
+<Location /svn>
+  DAV svn
+  SVNParentPath /var/lib/svn
+  SVNListParentPath On
+  AuthType Basic
+  AuthName "Subversion Repository"
+  AuthUserFile /etc/apache2/dav_svn.passwd
+  AuthzSVNAccessFile /etc/apache2/dav_svn.authz
+    Require valid-user
+</Location>
+' >> /etc/apache2/mods-available/dav_svn.conf
+
+mkdir /var/lib/svn
+chown www-data:www-data /var/lib/svn
+cd /var/www/html/svnmanager-1.10/
+cp config.php.linux config.php
+
+vi config.php
+$svn_config_dir                         =       "/var/lib/svn/svnconfig";
+$svn_repos_loc                          =       "/var/lib/svn";
+$svn_passwd_file                        =       "/etc/apache2/dav_svn.passwd";
+$svn_access_file                        =       "/etc/apache2/dav_svn.authz";
+$dsn                            =       "mysqli://svnmanager:passw0rd@localhost/svnmanager";
+$admin_name                                             =       "admin";
+$admin_temp_password                    =       "admin";
+:wq
+
+mysql> create database svnmanager;
+mysql> grant all privileges on svnmanager.* to 'svnmanager'@'localhost' identified by 'passw0rd';
+
+#server is hosted in Lan, gotta enable iptables gateway
+iptables -t nat -A PREROUTING -i enp0s31f6 -d 172.16.133.66 -p tcp --dport 8881 -j DNAT --to-destination 192.168.122.59:80
