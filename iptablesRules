@@ -1,11 +1,9 @@
 # netfilter-iptables
 # tables:raw mangle nat filter
 # chains:POSTROUTING(nat) RREROUTING(nat) FORWARD(filter) INPUT(filter) OUTPUT(nat filter)
-# relationships:
-# in PREROUTING-INPUT
-# out OUTPUT-POSTROUTING
-# forward PREROUTING-FORWARD-POSTROUTING
-# examples:
+# PREROUTING->INPUT->OUTPUT->POSTROUTING
+# PREROUTING-FORWARD-POSTROUTING
+
 iptables -A INPUT -p tcp -j DROP # fliter
 iptables -L -n
 iptables -L -n --line-numbers
@@ -21,7 +19,6 @@ iptables -I INPUT -p tcp -m state--state ESTABLISHED,RELATED -j ACCEPT # link st
 
 # configure NAT(SNAT and DNAT) on a gateway:
 vi /etc/sysctl.conf # firstly enable forwarding by change net.ipv4.forwarding value
-:wq
 iptables -t nat -A POSTROUTING -s 192.168.1.0/24 -o eth0 -j SNAT --to-source 202.254.84.144 # this is so called SNAT, enable users from LAN to visit WWW
 iptables -t nat -A POSTROUTING -s 192.168.1.0/24 -o eth0 -j MASQUERADE # this is not so effective
 iptables -t nat -A PREROUTING -i eth1 -d 202.205.84.244 -p tcp --dport 80 -j DNAT --to-destination 192.168.1.101 # a website is hosted on 192.168.1.101, this is DNAT
