@@ -31,7 +31,7 @@ echo '
 /usr/local/bin/inotifywait -mrq -e create.delete /var/named | while read DIRECTORY EVENT FILE
 do
 /usr/local/bin/unison -batch /var/named ssh://192.168.56.11/var/named
-#'just point to the other server's address, (56.11 point to 57.11, on 57.11, point to 56.11)'
+#'just point to the other server's address, (56.11 point to 57.11; on 57.11, point to 56.11)'
 done
 ' > /root/unison.sh
 chmod +x /root/unison.sh
