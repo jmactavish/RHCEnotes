@@ -10,3 +10,15 @@ max-lease-time 3600;
 :wq
 chkconfig dhcpd on
 service dhcpd start
+
+#for DHCP super domain:
+vi /etc/dhcp/dhcpd.conf
+shared-network domain57-58 {
+  subnet 192.168.57.0 netmask 255.255.255.0 {
+  range 192.168.57.191 192.168.57.199;
+  }
+  subnet 192.168.58.0 netmask 255.255.255.0 {
+  range 192.168.58.191 192.168.58.199;
+  }
+}
+:wq
