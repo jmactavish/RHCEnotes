@@ -15,7 +15,7 @@ iptables -A INPUT -p tcp --dport 20:21 -j ACCEPT
 iptables -I INPUT -p tcp -m multiport --dport 25,80,110,143 -j ACCEPT # fliter
 iptables -A INPUT -p tcp -m iprange --src-range 192.168.122.11-192.168.122.20 -j ACCEPT # fliter
 iptables -A INPUT -p icmp --icmp-type 8 -j DROP # decline ping requests from other hosts
-iptables -I INPUT -p tcp -m state--state ESTABLISHED,RELATED -j ACCEPT # link states: new established related
+iptables -I INPUT -p tcp -m state --state ESTABLISHED,RELATED -j ACCEPT # link states: new established related
 
 # configure NAT(SNAT and DNAT) on a gateway:
 vi /etc/sysctl.conf # firstly enable forwarding by change net.ipv4.forwarding value
