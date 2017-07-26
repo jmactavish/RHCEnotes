@@ -17,24 +17,24 @@ view lan {
 		type hint;
 		file "named.ca";
 		};
-	zone "57.rljhs.net" IN {
+	zone "57.example.com" IN {
 		type slave;
 		masters { 192.168.57.11; };
-		file "slaves/57.rljhs.net";
+		file "slaves/57.example.com";
 		};
-	zone "rljhs.net" IN {
+	zone "example.com" IN {
 		type slave;
 		masters { 192.168.57.11; };
-		file "slaves/rljhs.net";
+		file "slaves/example.com";
 		};
 	};
 view wan {
 	match-clients { any; };
 	recursion no;
-	zone "rljhs.net" IN {
+	zone "example.com" IN {
 		type slave;
 		masters { 192.168.57.11; };
-		file "slaves/rljhs.net";
+		file "slaves/example.com";
 		};
 	};
 ' >> /etc/named.conf
