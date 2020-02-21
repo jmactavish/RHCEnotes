@@ -1,6 +1,7 @@
 yum install httpd mysql mysql-server mysql-devel php php-mysql zlib freetype libjpeg fontconfig gd libxml2 php-gd rrdtool net-snmp net-snmp-utils 
 yum install gcc*
 mkdir /var/www/html
+cd /var/www/html/ && wget cacti.tar.gz
 tar -xzf /var/www/html/cacti.tar.gz
 cd /var/www/html/cacti
 vim include/config.php
@@ -22,7 +23,7 @@ mysql -u root -p
 create database cacti;
 show databases;
 use cacti;
-grant all privileges on cacti.* to cactiuser@loaclhost identified by "passw0rd";
+grant all privileges on cacti.* to cactiuser@localhost identified by "passw0rd";
 flush privileges;
 exit
 mysql -u cactiuser -p password cacti < /var/www/html/cacti/cacti.sql
